@@ -1,0 +1,334 @@
+---
+modules:
+  - docassemble.base.core
+  - docassemble.base.util
+---
+objects:
+  - tenant: DAList.using(object_type=Individual, complete_attribute="complete")
+  - landlord: DAList.using(object_type=Individual, complete_attribute="complete")
+---
+code: |
+ tenant[i].name.first
+ tenant[i].address
+ tenant[i].city
+ tenant[i].province
+ tenant[i].zip
+ tenant[i].fax
+ tenant[i].email
+ tenant[i].complete = True
+---
+code: |
+ landlord[i].name.first
+ landlord[i].address
+ landlord[i].city
+ landlord[i].province
+ landlord[i].zip
+ landlord[i].fax
+ landlord[i].email
+ landlord[i].complete = True
+---
+mandatory: true
+code:  |
+  # Interview flow block.
+  tenant.gather()
+  landlord.gather()
+  problem_in_ab
+---
+question: | 
+  Is the place where this problem happened in Alberta?
+Yesno: problem_in_ab
+---
+question: | 
+  Are you renting a place to live?
+yesno: tenant.there_are_any
+---
+question: | 
+  What is your name?
+fields:
+  - First Name: tenant[i].name.first 
+  - Last Name: tenant[i].name.last
+---
+question: | 
+  Thanks, ${ tenant[i].name.first }. Can you tell me a little more about yourself?
+subquestion: | 
+  What is your contact information?
+fields:
+  - Phone Number: tenant[i].phone_number
+  - Email: tenant[i].email
+  - Fax: tenant[i].fax
+---
+question: | 
+  Where do you currently live? 
+fields:
+  - Suite Number: tenant[i].unit
+  - Street Address: tenant[i].address
+  - City: tenant[i].city
+  - Province: tenant[i].province
+  - Postal Code: tenant[i].zip
+---
+question: | 
+  Do you live with anyone else?
+  Are there are other names (renters) on the lease?
+yesno: tenant.there_is_another
+---
+question: | 
+  Do you have a landlord?
+yesno: landlord.there_are_any
+---
+question: | 
+  What is the name of your landlord?
+fields:
+  - First Name: landlord[i].name.first 
+  - Last Name: landlord[i].name.last
+---
+question: | 
+  What is your landlord’s contact information?
+fields:
+  - Phone Number: landlord[i].phone_number
+  - Email: landlord[i].email
+  - Fax: landlord[i].fax
+  - Suite Number: landlord[i].unit
+  - Street Address: landlord[i].address
+  - City: landlord[i].city
+  - Province: landlord[i].province
+  - Postal Code: landlord[i].zip
+---
+question: | 
+  Do you have any other landlords?
+yesno: landlord.there_is_another
+---
+question: |
+  Do you have a written agreement for the rental?
+yesno: hardcopy_exists
+---
+question: |
+ Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
+yesno: made_court_application
+---
+question: |
+  Have you been served with a Provincial or Court of Queen’s Bench application on this matter?   
+yesno: served_court_application
+---
+question: |
+ Have you been served with a RTDRS application package by the respondent(s)?
+Yesno: served_rtdrs
+---
+question: | 
+ Can you please provide the RTDRS case number?
+fields:
+ - RTDRS Number: rtdrs_case_number
+---
+## SECTION A GENERAL
+##
+##
+##
+---
+question: |
+  What sort of place are you renting? / did you rent?
+field: rental_premises_type
+choices:
+  - House
+  - Main floor of a house
+  - Basement suite
+  - Apartment
+  - Townhouse
+  - Other
+---
+mandatory: True
+question: |
+  Now we need to know whether this ${ place } that you are renting is covered by the *Residential Tenancy Act*.
+subquestion: |
+  Some rentals aren't included in this law.
+  If your rental isn't included, you won't be able to use this service.
+  ### Question for whether the *Act* applies
+  Wording to be changed later
+---
+ ## SECTION B
+## TERMINATION OF TENANCY 
+##
+##
+---
+---
+question: |
+  Do you want to terminate your tenancy?
+yesno: termination
+---
+question: |
+  On what date would you like to terminate your tenancy?
+fields:
+  - Date of Termination: termination_date
+    datatype: date
+---
+question: |
+  What is your reason for wanting to terminate your tenancy?
+fields:
+  - Explain here: termination_text 
+---
+question: |
+  Did you give your landlord a notice?
+yesno: Termination_served
+---
+## SECTION C
+## Abatement section
+##
+##
+---
+question: |
+  Why do you think you should be paying less rent?
+fields:
+  - Explain here: abatement_text
+    datatype: area
+---
+question: |
+  How much extra money have you been paying?
+fields:
+  - Value: abatement_claim
+    datatype: currency
+    min: 0
+---
+## SECTION D
+## Damages section
+##
+##
+---
+question: |
+  What harm did the landlord cause you? What did they do to make this happen?
+fields:
+  - Explain here: damages_text
+    datatype: area
+---
+question: |
+  How much money did the landlord cost you?
+fields:
+  - Value: damages_claim
+    datatype: currency
+    min: 0
+
+---
+## SECTION E
+## Compensation section
+##
+##
+---
+question: |
+  What did you do that the landlord should have done?
+fields:
+  - Explain here: compensation_text
+    datatype: area
+---
+question: |
+  How much did you spend on doing things that the landlord should have done?
+fields:
+  - Value: compensation_claim
+    datatype: currency
+    min: 0
+---
+## SECTION F
+
+## Security Deposit
+## This should probably be a variable section where it’s only shown if security_deposit has a value greater than zero AND if the tenancy has ended
+---
+Question: |
+  Now we’re going to ask about the security deposit 
+Subquestion: |
+  You told us that you gave the landlord a deposit of $ ${ security_deposit }. 
+  Has the landlord paid back the deposit?
+Datatype: radio
+They have paid back all of the deposit: paid_back_all
+They have paid back only some of the deposit: paid_back_some
+They have not paid back any of the deposit: paid_back_none
+---
+## SECTION G
+## Costs section
+##
+##
+---
+question: |
+  Should the landlord be required to pay the $75 fee to file this form?
+yesno: file_fee
+---
+question: |
+  Have you spent any other money to file this form that you think the landlord should be required to pay?
+yesno: other_costs
+---
+question: |
+  Explain how you spent any other money to file this form that you think the landlord should be required to pay
+fields:
+  - Explain here: costs_text
+    datatype: area
+---
+question: |
+  How much money did you spend to file this form and that you think the landlord should pay?
+fields:
+  - Value: cost_claim
+    datatype: currency
+    min: 0
+---
+question: |
+ Witness
+field: witnesses
+choices: 
+  - I will
+  - I will not
+Subquestion: |
+ Call witnesses to give evidence
+---
+Question: |
+  Do you have anyone else who will be able to talk about this problem in a court?
+yesno: witnesses
+---
+mandatory: True
+question: |
+  Your document is ready.
+subquestion: |
+  Thank you for using this interview.
+buttons:
+  - Exit: exit
+  - Restart: restart
+attachments:
+  - name: RTDRS Application
+    filename: RTDRS_Application
+    pdf template file: rtdrs-3.pdf
+    fields: 
+      - "RTDRS Case No": ${ rtdrs_case_no }
+      - "Termination": ${ termination }
+      - "Abatement": ${ abatement }
+      - "Damages": ${ damages }
+      - "Compensation": ${ compensation }
+      - "Recovery": ${ recovery }
+      - "Tenant_Name": ${ tenant_name }
+      - "Tenant_Address": ${ tenant_address }
+      - "Tenant_City": ${ tenant_city }
+      - "Tenant_Province": ${ tenant_province }
+      - "Tenant_Postal": ${ tenant_postal }
+      - "Tenant_Phone": ${ tenant_phone }
+      - "Tenant_Fax": ${ tenant_fax }
+      - "Tenant_Email": ${ tenant_email }
+      - "Landlord_Name": ${ landlord_name }
+      - "Landlord_Address": ${ landlord_address }
+      - "Landlord_City": ${ landlord_city }
+      - "Landlord_Province": ${ landlord_province }
+      - "Landlord_Postal": ${ landlord_postal }
+      - "Landlord_Phone": ${ landlord_phone }
+      - "Landlord_Fax": ${ landlord_fax }
+      - "Landlord_Email": ${ landlord_email }
+      - "Rental_Address": ${ rental_address }
+      - "Rental_City": ${ rental_city }
+      - "Rental_Province": ${ rental_province }
+      - "Rental_Postal": ${ rental_postal }
+      - "Made_Court_Application": ${ made_court_application }
+      - "Served_Court_Application": ${ served_court_application }
+      - "Served_RTDRS": ${ served_rtdrs }
+      - "Rental premises type": ${ rental_premises_type }
+      - "Monthly_Rent": ${ monthly_rent }
+      - "Security_Deposit": ${ security_deposit }
+      - "Tenancy_Type": ${ tenancy_type }
+      - "Tenancy Agreement is attached": ${ agreement_attached }
+      - "Tenancy_Begin": ${ tenancy_begin }
+      - "Marked_As": ${ marked_as }
+      - "Are you still residing in the rental premises": ${ still_resident }
+      - "Termination_Date": ${ termination_date }
+      - "Was a notice to terminate served on the landlord": ${ was_a_notice_to_terminate_served_on_the_landlord }
+
+---
+  
