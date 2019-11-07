@@ -1,21 +1,123 @@
 ---
+metadata:
+  title: |
+    EMRLD: Electronic Means for Renter & Landlord Disputes
+  short title: |
+    EMRLD
+  tab title: |
+    EMRLD
+  description: |
+    A guided interview to help renters fill out the forms used by the Residential Tenancies Dispute Resolution Service (RTDRS) in Alberta.
+  right: |
+    ![Markdown logo](https://cloudfront.ualberta.ca/-/media/toolkit/guideline-graphics/ua-colour.jpg?w=300)
+    ![Markdown logo](https://www.eclc.ca/wp-content/themes/clg-edmonton/img/logo-new.gif)
+  authors:
+    - name: LAW 599 Coding the Law
+      organization: University of Alberta Faculty of Law
+---
+auto terms: 
+    RTA: |
+      The Residential Tenancies Act is the law that talks about the rights and responsibilities of renters and landlords.
+---
+##
+## Check to see if the RTA applies to the user
+##
+---
+question: |
+  Do any of these describe the place you are filing this complaint about:
+field: rta_applies
+choices:
+  - a mobile home site?: mobile
+  - an apartment connected to a business but you rent the whole space as one?: business
+  - a hotel room, room in a bed and breakfast, or a cabin in a campground where you have stayed less than six months?: hotel
+  - a residence on campus where you do not have your own kitchen and bathroom?: campus
+  - in a nursing home?: nursing
+  - in a seniors' lodge?: lodge
+  - in a supportive housing building?: supportive
+  - in a halfway house?: halfway
+  - renting a room and sharing the kitchen, bathroom or living room with your landlord?: share
+  - none of these fit: none
+---
+code: |
+  if rta_applies == "none":
+    rta_applicable
+  else:
+    rta_not_applicable
+---
+question: |
+  The RTA applies to your situation. 
+subquestion: |
+  Are you ready to proceed?
+buttons:
+  - Let's get started: proceed
+event: rta_applicable
+---
+question: |
+  Sorry, the RTA does not apply in your case.
+buttons:
+  - Exit: exit
+  - Start Again: restart
+event: rta_not_applicable
+---
 modules:
   - docassemble.base.core
   - docassemble.base.util
 ---
 objects:
-  - tenant: DAList.using(object_type=Individual, complete_attribute="complete")
+  - tenant: Individual.using(complete_attribute="complete")
+  - other_tenants: DAList.using(object_type=Individual, complete_attribute="complete")
   - landlord: DAList.using(object_type=Individual, complete_attribute="complete")
+  - witness: DAList.using(object_type=Individual)
+---
+mandatory: true
+code:  |
+  # INTERVIEW FLOW BLOCK
+  rta_applies
+  tenant.complete
+  other_tenants.gather()
+  landlord.gather()
+  problem_in_ab
+  hardcopy_exists
+  made_court_application
+  served_court_application
+  served_rtdrs
+  rtdrs_case_number
+  # SECTION A
+  rental_premises_type
+  # SECTIONS E,F,G
+  compensation_text
+  compensation_claim
+  date_paid
+  move_in
+  move_out
+  statement
+  recovery_text
+  sd_owed_correct
+  file_fee
+  costs_text
+  total_claim_correct
+  # WITNESSES
+  witness.gather()
+  witnesses_confirmed
+  tenant.signature
 ---
 code: |
- tenant[i].name.first
- tenant[i].address
- tenant[i].city
- tenant[i].province
- tenant[i].zip
- tenant[i].fax
- tenant[i].email
- tenant[i].complete = True
+ tenant.name.first
+ tenant.address
+ tenant.city
+ tenant.province
+ tenant.zip
+ tenant.phone_number
+ tenant.fax
+ tenant.email
+ tenant.complete = True
+---
+code: |
+ other_tenants[i].name.first
+ other_tenants[i].phone_number
+ other_tenants[i].fax
+ other_tenants[i].email
+ other_tenants[i].complete = True
 ---
 code: |
  landlord[i].name.first
@@ -23,53 +125,59 @@ code: |
  landlord[i].city
  landlord[i].province
  landlord[i].zip
+ landlord[i].phone_number
  landlord[i].fax
  landlord[i].email
  landlord[i].complete = True
----
-mandatory: true
-code:  |
-  # Interview flow block.
-  tenant.gather()
-  landlord.gather()
-  problem_in_ab
 ---
 question: | 
   Is the place where this problem happened in Alberta?
 Yesno: problem_in_ab
 ---
 question: | 
-  Are you renting a place to live?
-yesno: tenant.there_are_any
----
-question: | 
   What is your name?
 fields:
-  - First Name: tenant[i].name.first 
-  - Last Name: tenant[i].name.last
+  - First Name: tenant.name.first 
+  - Last Name: tenant.name.last
 ---
 question: | 
-  Thanks, ${ tenant[i].name.first }. Can you tell me a little more about yourself?
+  Thanks, ${ tenant.name.first }. Can you tell me a little more about yourself?
 subquestion: | 
   What is your contact information?
 fields:
-  - Phone Number: tenant[i].phone_number
-  - Email: tenant[i].email
-  - Fax: tenant[i].fax
+  - Phone Number: tenant.phone_number
+  - Email: tenant.email
+  - Fax: tenant.fax
 ---
 question: | 
   Where do you currently live? 
 fields:
-  - Suite Number: tenant[i].unit
-  - Street Address: tenant[i].address
-  - City: tenant[i].city
-  - Province: tenant[i].province
-  - Postal Code: tenant[i].zip
+  - Suite Number: tenant.unit
+  - Street Address: tenant.address
+  - City: tenant.city
+  - Province: tenant.province
+  - Postal Code: tenant.zip
 ---
 question: | 
   Do you live with anyone else?
-  Are there are other names (renters) on the lease?
-yesno: tenant.there_is_another
+yesno: other_tenants.there_are_any
+---
+question: | 
+  What is their name?
+fields:
+  - First Name: other_tenants[i].name.first
+  - Last Name: other_tenants[i].name.last
+---
+question: | 
+  What is their contact info?
+fields:
+  - Phone Number: other_tenants[i].phone_number
+  - Email: other_tenants[i].email
+  - Fax: other_tenants[i].fax
+---
+question: | 
+  Do you live with anyone else, other than ${ other_tenants }?
+yesno: other_tenants.there_is_another
 ---
 question: | 
   Do you have a landlord?
@@ -125,18 +233,23 @@ fields:
 ---
 question: |
   What sort of place are you renting? / did you rent?
-field: rental_premises_type
-choices:
-  - House
-  - Main floor of a house
-  - Basement suite
-  - Apartment
-  - Townhouse
-  - Other
+fields: 
+  - Type of Premises: rental_premises_type
+    choices:
+      - House: house
+      - Main floor of a house: 
+      - Basement suite: basement_suite
+      - Apartment: apartment
+      - Townhouse: townhouse
+      - Other: other
+  - Other type of premises: rental_premises_type
+    show if:
+      variable: rental_premises_type
+      is: other
 ---
 mandatory: True
 question: |
-  Now we need to know whether this ${ place } that you are renting is covered by the *Residential Tenancy Act*.
+  Now we need to know whether this place that you are renting is covered by the *Residential Tenancy Act*.
 subquestion: |
   Some rentals aren't included in this law.
   If your rental isn't included, you won't be able to use this service.
@@ -147,7 +260,6 @@ subquestion: |
 ## TERMINATION OF TENANCY 
 ##
 ##
----
 ---
 question: |
   Do you want to terminate your tenancy?
@@ -203,7 +315,9 @@ fields:
   - Value: damages_claim
     datatype: currency
     min: 0
-
+---
+code: |
+  security_deposit = 500
 ---
 ## SECTION E
 ## Compensation section
@@ -224,19 +338,82 @@ fields:
     min: 0
 ---
 ## SECTION F
-
 ## Security Deposit
 ## This should probably be a variable section where it’s only shown if security_deposit has a value greater than zero AND if the tenancy has ended
 ---
-Question: |
-  Now we’re going to ask about the security deposit 
-Subquestion: |
+question: |
+  Now we’re going to ask about the security deposit. 
+subquestion: |
   You told us that you gave the landlord a deposit of $ ${ security_deposit }. 
   Has the landlord paid back the deposit?
-Datatype: radio
-They have paid back all of the deposit: paid_back_all
-They have paid back only some of the deposit: paid_back_some
-They have not paid back any of the deposit: paid_back_none
+field: paid_back
+choices:
+  - They have paid back all of the deposit: paid_back_all
+  - They have paid back only some of the deposit: paid_back_some
+  - They have not paid back any of the deposit: paid_back_none
+---
+code: |
+  if paid_back == "paid_back_some":
+    some_paid
+  if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
+    date_paid
+  move_in
+  if termination_date:
+    move_out
+  statement
+  recovery_text
+  recovery_claim
+---
+question: |
+  How much of the security deposit did they pay back?
+fields:
+  - Value: some_paid
+    datatype: currency
+    min: 0
+---
+question: |
+  When did the landlord pay back the deposit?
+fields: 
+  - Date paid back: date_paid
+    datatype: date
+---
+question: |
+  Was there a move-in inspection done?
+subquestion: |
+  You'll need to attach the form for this inspection.
+yesno: move_in
+---
+question: |
+  Was there a move-out inspection done?
+subquestion: |
+  You'll need to attach the form for this inspection.
+yesno: move_out
+---
+question: |
+  Did the landlord provide you a **Statement of Account** for your security deposit?
+subquestion: |
+  You'll need to attach this statement, if you have it. 
+yesno: statement
+---
+question: |
+  Please explain why the security deposit should be paid back to you.
+fields:
+  - Explain here: recovery_text
+    datatype: area
+---
+code: |
+  if paid_back == "paid_back_some":
+    recovery_claim = security_deposit - some_paid
+  elif paid_back == "paid_back_none":
+    recovery_claim = security_deposit
+  elif paid_back == "paid_back_all":
+    recovery_claim = 0
+---  
+question: |
+  The landlord owes you $ ${ recovery_claim } back for the security deposit.  
+subquestion: |
+  Is that correct?
+yesno: sd_owed_correct
 ---
 ## SECTION G
 ## Costs section
@@ -251,33 +428,82 @@ question: |
   Have you spent any other money to file this form that you think the landlord should be required to pay?
 yesno: other_costs
 ---
+code: |
+  if other_costs:
+    costs_claim
+    costs_text
+  total_claim  
+---
+question: |
+  How much have you spent to file this form that you think the landlord should pay?
+fields:
+  - Filing costs: costs_claim
+    datatype: currency
+    min: 0
+---
 question: |
   Explain how you spent any other money to file this form that you think the landlord should be required to pay
 fields:
   - Explain here: costs_text
     datatype: area
 ---
+code: |
+  if file_fee:
+    total_claim = costs_claim + recovery_claim + 75
+  else:
+    total_claim = costs_claim + recovery_claim
+---
 question: |
-  How much money did you spend to file this form and that you think the landlord should pay?
+  By our calculations, your total claim is $ ${ total_claim }.
+subquestion: |
+  Is this correct?
+yesno: total_claim_correct  
+---
+## WITNESS SECTION
+##
+##
+---
+question: |
+  Will you be calling any witnesses to give evidence?
+yesno: witness.there_are_any
+---
+question: |
+  What is the name of your ${ ordinal(i) } witness?
 fields:
-  - Value: cost_claim
-    datatype: currency
-    min: 0
+  - First Name: witness[i].name.first
+  - Last Name: witness[i].name.last
 ---
 question: |
- Witness
-field: witnesses
-choices: 
-  - I will
-  - I will not
-Subquestion: |
- Call witnesses to give evidence
+  Do you have any other witnesses?
+yesno: witness.there_is_another
 ---
-Question: |
-  Do you have anyone else who will be able to talk about this problem in a court?
-yesno: witnesses
+question: |
+  Thank you, you've listed the following people as witnesses:
+  ${ witness }
+subquestion: Is this right?
+yesno: witnesses_confirmed
 ---
-mandatory: True
+question: |
+ You can only claim amounts less than $50,000 using this form. If you feel like you're owed more money than this, you won't be able to get it if you file this form.
+subquestion: |
+ Are you trying to claim more than $50,000?
+yesno: claim_more_than_max
+---
+if claim_more_than_max:
+question: |
+  Please talk to someone from ECLC before finishing this form.
+subquestion: |
+  You may not be able to claim the full amount that you want to.
+exit: Exit
+---
+if claim_more_than_max == False:
+question:  |
+  You're all done
+subquestion: |
+  Please sign below to confirm that all of the information that you've provided is true and correct.
+  Today's date is ${ today() }.
+signature: tenant.signature
+---
 question: |
   Your document is ready.
 subquestion: |
