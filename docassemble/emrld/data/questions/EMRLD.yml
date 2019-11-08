@@ -13,7 +13,7 @@ metadata:
     ![Markdown logo](https://www.eclc.ca/wp-content/themes/clg-edmonton/img/logo-new.gif)
   authors:
     - name: LAW 599 Coding the Law
-      organization: University of Alberta Faculty of Law
+      organization: University of Alberta Faculty of Law #Add random stuff here.
 ---
 auto terms: 
     RTA: |
