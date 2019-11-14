@@ -26,7 +26,7 @@ modules:
   - docassemble.base.util
 ---
 objects:
-  - tenants: DAList.using(object_type=Individual, complete_attribute="complete", there_are_any=True)
+  - tenants: DAList.using(object_type=Individual, complete_attribute="complete",there_are_any=True)
   - landlord: DAList.using(object_type=Individual, complete_attribute="complete", there_are_any=True)
   - witness: DAList.using(object_type=Individual)
 ---
@@ -90,15 +90,20 @@ code:  |
   tenants[0].signature
 ---
 code: |
- tenants[i].name.first
- tenants[i].address
- tenants[i].city
- tenants[i].province
- tenants[i].zip
- tenants[i].phone_number
- tenants[i].fax
- tenants[i].email
- tenants[i].complete = True
+  if i==0:
+     tenants[i].name.first
+     tenants[i].address
+     tenants[i].city
+     tenants[i].province
+     tenants[i].zip
+     tenants[i].phone_number
+     tenants[i].fax
+     tenants[i].email
+     tenants[i].complete = True
+  else:
+     tenants[i].name.first
+     tenants[i].name.last
+     tenants[i].complete = True
 ---
 code: |
  landlord[i].name.first
@@ -110,6 +115,16 @@ code: |
  landlord[i].fax
  landlord[i].email
  landlord[i].complete = True
+---
+## Test code for a table.
+---
+table: tenants.table
+rows: tenants
+columns: 
+  - Name: row_item
+edit:
+  - name.first
+  - name.last
 ---
 ##
 ## Check to see if the RTA applies to the user
@@ -190,21 +205,36 @@ question: |
 fields:
   - First Name: tenants[i].name.first 
   - Last Name: tenants[i].name.last
+---
+question: |
+  Tell us some more about you.
+fields:
   - Phone Number: tenants[i].phone_number
+    required: false
   - Email: tenants[i].email
+    required: false
+    datatype: email
   - Fax: tenants[i].fax
+    required: false
   - Suite Number: tenants[i].unit
+    required: false
   - Street Address: tenants[i].address
   - City: tenants[i].city
   - Province: tenants[i].province
+    default: "AB"
   - Postal Code: tenants[i].zip
 ---
 question: | 
-  Is there another tenant?
-yesno: tenants.there_is_another
+  Were there any other people living at the rental address?  
+   ${tenants.table}
+    ${tenants.add_action() }
+
+subquestion: |
+  All done?
+noyes: tenants.there_is_another
 ---
-question: | 
-  % if i ==0:
+question: |
+  % if i==0:  
     Please give us some information about your landlord.  
     
     If you have more than one, we'll ask you for their information afterward.
@@ -215,12 +245,18 @@ fields:
   - First Name: landlord[i].name.first 
   - Last Name: landlord[i].name.last
   - Phone Number: landlord[i].phone_number
+    required: false
   - Email: landlord[i].email
+    required: false
+    datatype: email
   - Fax: landlord[i].fax
+    required: false
   - Suite Number: landlord[i].unit
+    required: false
   - Street Address: landlord[i].address
   - City: landlord[i].city
   - Province: landlord[i].province
+    default: "AB"
   - Postal Code: landlord[i].zip
 ---
 question: | 
@@ -231,8 +267,11 @@ question: |
   What is the address of your rental?
 fields:
   - Street Address: rental_address
+    default: ${tenants[0].address}
   - City: rental_city
+    default: ${tenants[0].province}
   - Postal Code: rental_zip
+    default: ${tenants[0].zip}
 ---
 question: |
   How much did you pay as a security deposit for this rental?
