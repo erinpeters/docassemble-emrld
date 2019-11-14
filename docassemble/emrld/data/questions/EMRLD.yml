@@ -284,24 +284,31 @@ fields:
 ---
 question: |
  Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
-yesno: made_court_application
+field: made_court_application
+buttons:
+  - Yes, I have.: made_application
+  - No, I have not.: did_not_make_application
 ---
 question: |
   Have you been served with a Provincial or Court of Queen’s Bench application on this matter?   
-yesno: served_court_application
+field: served_court_application
+buttons:
+  - Yes, I have.: served_application
+  - No, I have not.: did_not_serve_application
 ---
-mandatory: true
 question: |
-  Have you ever had an RTDRS application at this rental before?
+  Have you received paperwork from the RTDRS about this rental?
+field: served_rtdrs
+buttons:
+  - Yes, I have.: have_served_rtdrs
+  - No, I have not.: not_served_rtdrs
+---
+mandatory: |
+  served_rtdrs == "have_served_rtdrs"
+question: |
+  What is the case number from your previous application?
 fields:
-  - Yes or No: served_rtdrs
-    choices:
-    - Yes
-    - No
-  - Previous application number: rtdrs_case_number
-    show if:
-      variable: served_rtdrs
-      is: Yes
+  - RTDRS case number: rtdrs_case_number
 ---
 ## SECTION A GENERAL
 ##
@@ -618,7 +625,7 @@ attachments:
       "move_in": ${ move_in }
       "move_out": ${ move_out }
       "statement": ${ statement }
-      "deposit_reason": ${ deposit_reason }
+      "deposit_reason": ${ deposit_text }
       "deposit_claim": ${ deposit_claim }
       "file_fee": ${ file_fee }
       "other_costs": ${ other_costs }
