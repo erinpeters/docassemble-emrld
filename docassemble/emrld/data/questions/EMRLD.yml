@@ -18,6 +18,8 @@ metadata:
 auto terms: 
     RTA: |
       The Residential Tenancies Act is the law that talks about the rights and responsibilities of renters and landlords.
+    tenant: |
+      This is you.
 ---
 modules:
   - docassemble.base.core
@@ -30,46 +32,61 @@ objects:
 ---
 mandatory: true
 code:  |
-  # INTERVIEW FLOW BLOCK
+## INTERVIEW FLOW BLOCK
   rta_applies
   remedy
+  if (remedy == “abatement”) or (remedy == “damages) or (remedy == compensation") or (remedy == "deposit"):
+    terminated_yes
   tenants.gather()
   landlord.gather()
   rental_address
-  rental_city
-  rental_zip
   made_court_application
   served_court_application
   served_rtdrs
   rtdrs_case_number
-  # SECTION A
+## SECTION A
   rental_premises_type
-  # SECTION B
-  termination
-  termination_date
-  termination_text
-  termination_served
-  # SECTION C
-  abatement_text
-  abatement_claim
-  # SECTION D
-  damages_text
-  damages_claim
-  # SECTIONS E,F,G
-  compensation_text
-  compensation_claim
-  date_paid
-  move_in
-  move_out
-  statement
-  recovery_text
-  sd_owed_correct
+## SECTION B
+  if remedy == “termination”:
+    termination
+    termination_date
+    termination_text
+    termination_served
+## SECTION C
+  if remedy == “abatement”:  
+    abatement_text
+    abatement_claim
+## SECTION D
+  if remedy == “damages”:
+    damages_text
+    damages_claim
+## SECTIONS E,F,G
+  if remedy == “compensation”:
+    compensation_text
+    compensation_claim
+  if (remedy == “deposit”) and (security_deposit > 0):
+    paid_back
+    if paid_back == "paid_back_some":
+      some_paid
+    if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
+      date_paid
+    move_in
+    if terminated_yes:
+      move_out
+    statement
+    if recovery_claim > 0:
+      recovery_text
+      sd_owed_correct
   file_fee
-  costs_text
+  other_costs
+  if other_costs:
+    costs_claim
+    costs_text
   total_claim_correct
-  # WITNESSES
+## WITNESSES
   witness.gather()
   witnesses_confirmed
+  claim_more_than_max
   tenants[0].signature
 ---
 code: |
@@ -99,7 +116,9 @@ code: |
 ##
 ---
 question: |
-  Do any of these describe the place you are filing this complaint about:
+  The RTA won't apply if you are in any of the living situationss described below.
+subquestion: |
+  Do any of these describe the place you are filing this complaint about?
 field: rta_applies
 choices:
   - a mobile home site?: mobile
@@ -151,6 +170,17 @@ choices:
   - I had to do something my landlord was supposed to do and I want to be repaid: compensation
   - I want to get my security deposit back: deposit
 ---
+question: |
+  Has this rental already ended, or are you still renting?
+field: terminated_yes
+buttons:
+  - "It has ended": True
+  - "It is still going": False
+---
+code: |
+  if remedy == "termination":
+    terminated_yes = False
+---
 question: | 
   % if i ==0:
     Please give us your information.
@@ -176,7 +206,8 @@ yesno: tenants.there_is_another
 question: | 
   % if i ==0:
     Please give us some information about your landlord.  
-    If there is more than one, you will be asked for their information after this one.
+    
+    If you have more than one, we'll ask you for their information afterward.
   % else:
     Tell us about the ${ordinal(i)} landlord.
   % endif
@@ -202,6 +233,15 @@ fields:
   - Street Address: rental_address
   - City: rental_city
   - Postal Code: rental_zip
+---
+question: |
+  How much did you pay as a security deposit for this rental?
+subquestion: |
+  If you didn't pay any security deposit, enter 0.
+fields:
+  - Security deposit: security_deposit
+    datatype: currency
+    min: 0
 ---
 question: |
  Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
@@ -282,7 +322,7 @@ fields:
     datatype: area
 ---
 question: |
-  How much extra money have you been paying?
+  How much extra money have you paid?
 fields:
   - Value: abatement_claim
     datatype: currency
@@ -305,9 +345,6 @@ fields:
   - Value: damages_claim
     datatype: currency
     min: 0
----
-code: |
-  security_deposit = 500
 ---
 ## SECTION E
 ## Compensation section
@@ -342,18 +379,6 @@ choices:
   - They have paid back only some of the deposit: paid_back_some
   - They have not paid back any of the deposit: paid_back_none
 ---
-code: |
-  if paid_back == "paid_back_some":
-    some_paid
-  if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
-    date_paid
-  move_in
-  if termination_date:
-    move_out
-  statement
-  recovery_text
-  recovery_claim
----
 question: |
   How much of the security deposit did they pay back?
 fields:
@@ -385,12 +410,6 @@ subquestion: |
   You'll need to attach this statement, if you have it. 
 yesno: statement
 ---
-question: |
-  Please explain why the security deposit should be paid back to you.
-fields:
-  - Explain here: recovery_text
-    datatype: area
----
 code: |
   if paid_back == "paid_back_some":
     recovery_claim = security_deposit - some_paid
@@ -398,7 +417,13 @@ code: |
     recovery_claim = security_deposit
   elif paid_back == "paid_back_all":
     recovery_claim = 0
----  
+---
+question: |
+  Please explain why the security deposit should be paid back to you.
+fields:
+  - Explain here: recovery_text
+    datatype: area
+---
 question: |
   The landlord owes you $ ${ recovery_claim } back for the security deposit.  
 subquestion: |
@@ -418,12 +443,6 @@ question: |
   Have you spent any other money to file this form that you think the landlord should be required to pay?
 yesno: other_costs
 ---
-code: |
-  if other_costs:
-    costs_claim
-    costs_text
-  total_claim  
----
 question: |
   How much have you spent to file this form that you think the landlord should pay?
 fields:
@@ -439,9 +458,9 @@ fields:
 ---
 code: |
   if file_fee:
-    total_claim = costs_claim + recovery_claim + 75
+    total_claim = costs_claim + abatement_claim + damages_claim + recovery_claim + 75
   else:
-    total_claim = costs_claim + recovery_claim
+    total_claim = costs_claim + abatement_claim + damages_claim + recovery_claim
 ---
 question: |
   By our calculations, your total claim is $ ${ total_claim }.
@@ -468,8 +487,12 @@ question: |
 yesno: witness.there_is_another
 ---
 question: |
+  % if witness.there_are_any:
   Thank you, you've listed the following people as witnesses:
   ${ witness }
+  % else:
+  You are not calling any witnesses.
+  % endif
 subquestion: Is this right?
 yesno: witnesses_confirmed
 ---
@@ -486,7 +509,7 @@ subquestion: |
   You may not be able to claim the full amount that you want to.
 exit: Exit
 ---
-if claim_more_than_max == False:
+if not claim_more_than_max:
 question:  |
   You're all done
 subquestion: |
@@ -566,4 +589,3 @@ attachments:
       "witness.there_are_any": ${ witnessthere_are_any }
       "witness.name": ${ witnessname }
 ---
-  
