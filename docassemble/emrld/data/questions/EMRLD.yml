@@ -33,6 +33,8 @@ code:  |
 ## INTERVIEW FLOW BLOCK
   rta_applies
   remedy
+  if (remedy == “abatement”) or (remedy == “damages) or (remedy == compensation") or (remedy == "deposit"):
+    terminated_yes
   tenants.gather()
   landlord.gather()
   rental_address
@@ -69,7 +71,7 @@ code:  |
     if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
       date_paid
     move_in
-    if termination_date:
+    if terminated_yes:
       move_out
     statement
     if recovery_claim > 0:
@@ -164,6 +166,17 @@ choices:
   - The landlord broke our agreement and cost me money: damages
   - I had to do something my landlord was supposed to do and I want to be repaid: compensation
   - I want to get my security deposit back: deposit
+---
+question: |
+  Has this rental already ended, or are you still renting?
+field: terminated_yes
+buttons:
+  - "It has ended": True
+  - "It is still going": False
+---
+code: |
+  if remedy == "termination":
+    terminated_yes = False
 ---
 question: | 
   % if i ==0:
