@@ -41,7 +41,6 @@ code:  |
   made_court_application
   served_court_application
   served_rtdrs
-  rtdrs_case_number
   # SECTION A
   rental_premises_type
   # SECTION B
