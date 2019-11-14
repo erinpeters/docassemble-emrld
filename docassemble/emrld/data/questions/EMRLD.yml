@@ -235,8 +235,9 @@ fields:
   - Type of Premises: rental_premises_type
     choices:
       - House: house
-      - Main floor of a house: 
-      - Basement suite: basement_suite
+      - Main floor of a house: main_floor
+      - Basement suite: basement
+      - Room: room
       - Apartment: apartment
       - Townhouse: townhouse
       - Other: other
@@ -493,6 +494,7 @@ subquestion: |
   Today's date is ${ today() }.
 signature: tenants[0].signature
 ---
+mandatory: true
 question: |
   Your document is ready.
 subquestion: |
@@ -503,47 +505,65 @@ buttons:
 attachments:
   - name: RTDRS Application
     filename: RTDRS_Application
-    pdf template file: rtdrs-3.pdf
+    pdf template file: rtdrs-form2.pdf
     fields: 
-      - "RTDRS Case No": ${ rtdrs_case_no }
-      - "Termination": ${ termination }
-      - "Abatement": ${ abatement }
-      - "Damages": ${ damages }
-      - "Compensation": ${ compensation }
-      - "Recovery": ${ recovery }
-      - "Tenant_Name": ${ tenant_name }
-      - "Tenant_Address": ${ tenant_address }
-      - "Tenant_City": ${ tenant_city }
-      - "Tenant_Province": ${ tenant_province }
-      - "Tenant_Postal": ${ tenant_postal }
-      - "Tenant_Phone": ${ tenant_phone }
-      - "Tenant_Fax": ${ tenant_fax }
-      - "Tenant_Email": ${ tenant_email }
-      - "Landlord_Name": ${ landlord_name }
-      - "Landlord_Address": ${ landlord_address }
-      - "Landlord_City": ${ landlord_city }
-      - "Landlord_Province": ${ landlord_province }
-      - "Landlord_Postal": ${ landlord_postal }
-      - "Landlord_Phone": ${ landlord_phone }
-      - "Landlord_Fax": ${ landlord_fax }
-      - "Landlord_Email": ${ landlord_email }
-      - "Rental_Address": ${ rental_address }
-      - "Rental_City": ${ rental_city }
-      - "Rental_Province": ${ rental_province }
-      - "Rental_Postal": ${ rental_postal }
-      - "Made_Court_Application": ${ made_court_application }
-      - "Served_Court_Application": ${ served_court_application }
-      - "Served_RTDRS": ${ served_rtdrs }
-      - "Rental premises type": ${ rental_premises_type }
-      - "Monthly_Rent": ${ monthly_rent }
-      - "Security_Deposit": ${ security_deposit }
-      - "Tenancy_Type": ${ tenancy_type }
-      - "Tenancy Agreement is attached": ${ agreement_attached }
-      - "Tenancy_Begin": ${ tenancy_begin }
-      - "Marked_As": ${ marked_as }
-      - "Are you still residing in the rental premises": ${ still_resident }
-      - "Termination_Date": ${ termination_date }
-      - "Was a notice to terminate served on the landlord": ${ was_a_notice_to_terminate_served_on_the_landlord }
-
+      "remedy": ${ remedy }
+      "tenant.name": ${ tenant[0].name } 
+      "tenant.address": ${ tenant[0].address }
+      "tenant.city": ${ tenant[0].city }
+      "tenant.province": ${ tenant[0].province }
+      "tenant.zip": ${ tenant[0].zip }
+      "tenant.fax": ${ tenant[0].fax }
+      "tenant.email": ${ tenant[0].email }
+      "tenant.phone": ${ tenant[0].phone }
+      "landlord.name": ${ landlord[0].name }
+      "landlord.address": ${ landlord[0].address }
+      "landlord.province": ${ landlord[0].province }
+      "landlord.city": ${ landlord[0].city }
+      "landlord.zip": ${ landlord[0].zip }
+      "landlord.email": ${ landlord[0].email }
+      "landlord.phone": ${ landlord.phone }
+      "landlord.fax": ${ landlord[0].fax }
+      "rental.city": ${ rental.city }
+      "rental.zip": ${ rental.zip }
+      "rental.address": ${ rental.address }
+      "made_court_application": ${ made_court_application }
+      "served_court_application": ${ served_court_application }
+      "served_rtdrs": ${ served_rtdrs }
+      "rtdrs_case_number": ${ rtdrs_case_number }
+      "rental_premises_type": ${ rental_premises_type }
+      "other_premises_type": ${ other_premises_type }
+      "rent": ${ rent }
+      "security_deposit": ${ security_deposit }
+      "other_term": ${ other_term }
+      "tenancy_type": ${ tenancy_type }
+      "tenancy_agreement": ${ tenancy_agreement }
+      "tenancy_start": ${ tenancy_start }
+      "residing": ${ residing }
+      "vacated_date": ${ vacated_date }
+      "previous_order": ${ previous_order }
+      "termination_date": ${ termination_date }
+      "termination_text": ${ termination_text }
+      "termination_served": ${ termination_served }
+      "abatement_text": ${ abatement_text }
+      "abatement_claim": ${ abatement_claim }
+      "damages_text": ${ damages_text }
+      "damages_claim": ${ damages_claim }
+      "compensation_text": ${ compensation_text }
+      "compensation_claim": ${ compensation_claim }
+      "date_paid": ${ date_paid }
+      "paid_back_none": ${ paid_back_none }
+      "move_in": ${ move_in }
+      "move_out": ${ move_out }
+      "statement": ${ statement }
+      "deposit_reason": ${ deposit_reason }
+      "deposit_claim": ${ deposit_claim }
+      "file_fee": ${ file_fee }
+      "other_costs": ${ other_costs }
+      "costs_text": ${ costs_text }
+      "costs_claim": ${ costs_claim }
+      "total_claim": ${ total_claim }
+      "witness.there_are_any": ${ witnessthere_are_any }
+      "witness.name": ${ witnessname }
 ---
   
