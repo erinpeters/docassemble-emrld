@@ -18,6 +18,8 @@ metadata:
 auto terms: 
     RTA: |
       The Residential Tenancies Act is the law that talks about the rights and responsibilities of renters and landlords.
+    tenant: |
+      This is you.
 ---
 modules:
   - docassemble.base.core
