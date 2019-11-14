@@ -36,18 +36,17 @@ code:  |
   tenants.gather()
   landlord.gather()
   rental_address
-  rental_city
-  rental_zip
   made_court_application
   served_court_application
   served_rtdrs
-  rtdrs_case_number
   # SECTION A
   rental_premises_type
   # SECTION B
   termination
-  termination_date
-  termination_text
+  if termination:
+    termination_date
+  if termination:
+    termination_text
   termination_served
   # SECTION C
   abatement_text
@@ -58,11 +57,16 @@ code:  |
   # SECTIONS E,F,G
   compensation_text
   compensation_claim
-  date_paid
+  if paid_back == "paid_back_some":
+    some_paid
+  if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
+    date_paid
   move_in
-  move_out
+  if termination_date:
+    move_out
   statement
   recovery_text
+  recovery_claim
   sd_owed_correct
   file_fee
   costs_text
@@ -70,6 +74,7 @@ code:  |
   # WITNESSES
   witness.gather()
   witnesses_confirmed
+  claim_more_than_max
   tenants[0].signature
 ---
 code: |
@@ -99,7 +104,9 @@ code: |
 ##
 ---
 question: |
-  Do any of these describe the place you are filing this complaint about:
+  The RTA won't apply if you are in any of the living situationss described below.
+subquestion: |
+  Do any of these describe the place you are filing this complaint about?
 field: rta_applies
 choices:
   - a mobile home site?: mobile
@@ -176,7 +183,8 @@ yesno: tenants.there_is_another
 question: | 
   % if i ==0:
     Please give us some information about your landlord.  
-    If there is more than one, you will be asked for their information after this one.
+    
+    If you have more than one, we'll ask you for their information afterward.
   % else:
     Tell us about the ${ordinal(i)} landlord.
   % endif
@@ -281,7 +289,7 @@ fields:
     datatype: area
 ---
 question: |
-  How much extra money have you been paying?
+  How much extra money have you paid?
 fields:
   - Value: abatement_claim
     datatype: currency
@@ -340,18 +348,6 @@ choices:
   - They have paid back all of the deposit: paid_back_all
   - They have paid back only some of the deposit: paid_back_some
   - They have not paid back any of the deposit: paid_back_none
----
-code: |
-  if paid_back == "paid_back_some":
-    some_paid
-  if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
-    date_paid
-  move_in
-  if termination_date:
-    move_out
-  statement
-  recovery_text
-  recovery_claim
 ---
 question: |
   How much of the security deposit did they pay back?
@@ -467,8 +463,12 @@ question: |
 yesno: witness.there_is_another
 ---
 question: |
+  % if witness.there_are_any:
   Thank you, you've listed the following people as witnesses:
   ${ witness }
+  % else:
+  You are not calling any witnesses.
+  % endif
 subquestion: Is this right?
 yesno: witnesses_confirmed
 ---
@@ -485,7 +485,7 @@ subquestion: |
   You may not be able to claim the full amount that you want to.
 exit: Exit
 ---
-if claim_more_than_max == False:
+if not claim_more_than_max:
 question:  |
   You're all done
 subquestion: |
