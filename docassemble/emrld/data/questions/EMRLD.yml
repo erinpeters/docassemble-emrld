@@ -11,6 +11,8 @@ metadata:
   right: |
     ![Markdown logo](https://cloudfront.ualberta.ca/-/media/toolkit/guideline-graphics/ua-colour.jpg?w=300)
     ![Markdown logo](https://www.eclc.ca/wp-content/themes/clg-edmonton/img/logo-new.gif)
+  help label: |
+    ?
   authors:
     - name: LAW 599 Coding the Law
       organization: University of Alberta Faculty of Law
@@ -19,7 +21,15 @@ auto terms:
     RTA: |
       The Residential Tenancies Act is the law that talks about the rights and responsibilities of renters and landlords.
     tenant: |
-      This is you.
+      This is you and anyone you live with.
+    landlord: |
+      This is the person you are renting from.
+    RTDRS: |
+      Residential Tenancy Dispute Resolution Service
+    Statement of Account: |   
+      Sets out the amount of the security deposit originally paid, the amount being returned, and any deductions.
+    witnesses: |
+      People who know about your rental situation and who can speak on your behalf.
 ---
 modules:
   - docassemble.base.core
@@ -32,10 +42,10 @@ objects:
 ---
 mandatory: true
 code:  |
-## INTERVIEW FLOW BLOCK
+  # INTERVIEW FLOW BLOCK
   rta_applies
   remedy
-  if (remedy == “abatement”) or (remedy == “damages) or (remedy == compensation") or (remedy == "deposit"):
+  if (remedy == 'abatement') or (remedy == 'damages') or (remedy == 'compensation') or (remedy == 'deposit'):
     terminated_yes
   tenants.gather()
   landlord.gather()
@@ -43,28 +53,29 @@ code:  |
   made_court_application
   served_court_application
   served_rtdrs
-  rtdrs_case_number
-## SECTION A
+  # SECTION A
   rental_premises_type
-## SECTION B
-  if remedy == “termination”:
+  security_deposit
+  rent
+  # SECTION B
+  if remedy == 'termination':
     termination
     termination_date
     termination_text
     termination_served
-## SECTION C
-  if remedy == “abatement”:  
+  # SECTION C
+  if remedy == 'abatement':  
     abatement_text
     abatement_claim
-## SECTION D
-  if remedy == “damages”:
+  # SECTION D
+  if remedy == 'damages':
     damages_text
     damages_claim
-## SECTIONS E,F,G
-  if remedy == “compensation”:
+  # SECTIONS E,F,G
+  if remedy == 'compensation':
     compensation_text
     compensation_claim
-  if (remedy == “deposit”) and (security_deposit > 0):
+  if (remedy == 'deposit') and (security_deposit > 0):
     paid_back
     if paid_back == "paid_back_some":
       some_paid
@@ -79,11 +90,11 @@ code:  |
       sd_owed_correct
   file_fee
   other_costs
-  if other_costs:
+  if other_costs == True:
     costs_claim
     costs_text
   total_claim_correct
-## WITNESSES
+  # WITNESSES
   witness.gather()
   witnesses_confirmed
   claim_more_than_max
@@ -131,7 +142,7 @@ edit:
 ##
 ---
 question: |
-  The RTA won't apply if you are in any of the living situationss described below.
+  The RTA won't apply if you are in any of the living situations described below.
 subquestion: |
   Do any of these describe the place you are filing this complaint about?
 field: rta_applies
@@ -198,7 +209,7 @@ code: |
 ---
 question: | 
   % if i ==0:
-    Please give us your information.
+    What is your name?
   % else:
     Tell us about the ${ordinal(i)} tenant.
   % endif
@@ -274,20 +285,13 @@ fields:
     default: ${tenants[0].zip}
 ---
 question: |
-  How much did you pay as a security deposit for this rental?
-subquestion: |
-  If you didn't pay any security deposit, enter 0.
-fields:
-  - Security deposit: security_deposit
-    datatype: currency
-    min: 0
----
-question: |
  Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
 field: made_court_application
 buttons:
   - Yes, I have.: made_application
   - No, I have not.: did_not_make_application
+help: |
+    Have you already filed papers at the courthouse?
 ---
 question: |
   Have you been served with a Provincial or Court of Queen’s Bench application on this matter?   
@@ -295,6 +299,8 @@ field: served_court_application
 buttons:
   - Yes, I have.: served_application
   - No, I have not.: did_not_serve_application
+help: |
+   Have you been given papers from someone else that talk about this rental issue?
 ---
 question: |
   Have you received paperwork from the RTDRS about this rental?
@@ -302,6 +308,8 @@ field: served_rtdrs
 buttons:
   - Yes, I have.: have_served_rtdrs
   - No, I have not.: not_served_rtdrs
+help: |
+  Have you filled out this kind of paperwork before for this same rental property?
 ---
 mandatory: |
   served_rtdrs == "have_served_rtdrs"
@@ -332,28 +340,48 @@ fields:
       variable: rental_premises_type
       is: other
 ---
- ## SECTION B
+question: |
+  How much did you pay as a security deposit for this rental?
+subquestion: |
+  If you didn't pay any security deposit, enter 0.
+fields:
+  - Security deposit: security_deposit
+    datatype: currency
+    min: 0
+help: |
+  A security deposit is an amount of money that you gave the landlord when you moved in. 
+  This is on top of the rent that you pay. 
+  The landlord has to give this money back to you when you move out as long as you leave the rental in good condition.
+---
+question: |
+  How much are you paying in rent every month?
+fields:
+  - Rent: rent
+    datatype: currency
+    min: 0
+---
+## SECTION B
 ## TERMINATION OF TENANCY 
 ##
 ##
 ---
 question: |
-  Do you want to terminate your tenancy?
+  Are you planning on moving out?
 yesno: termination
 ---
 question: |
-  On what date would you like to terminate your tenancy?
+  On what date would you like to move out?
 fields:
   - Date of Termination: termination_date
     datatype: date
 ---
 question: |
-  What is your reason for wanting to terminate your tenancy?
+  What is your reason for wanting to move out?
 fields:
   - Explain here: termination_text 
 ---
 question: |
-  Did you give your landlord a notice?
+  Did you tell your landlord in writing that you are planning on moving out?
 yesno: termination_served
 ---
 ## SECTION C
@@ -402,6 +430,8 @@ question: |
 fields:
   - Explain here: compensation_text
     datatype: area
+help: |
+  This includes things such as repairs to the property, buying and/or installing new appliances, etc.
 ---
 question: |
   How much did you spend on doing things that the landlord should have done?
@@ -443,12 +473,18 @@ question: |
 subquestion: |
   You'll need to attach the form for this inspection.
 yesno: move_in
+help: |
+  A move-in inspection is a checklist that you and your landlord may have gone through when you moved in.
+  You would have walked around the property and pointed out anything that was wrong with the place so that your landlord couldn't blame you for it later.
 ---
 question: |
   Was there a move-out inspection done?
 subquestion: |
   You'll need to attach the form for this inspection.
 yesno: move_out
+help: |
+  A move-out inspection is a checklist that you and your landlord may have gone through when you moved out.
+  You would have walked around the property and pointed out anything that had been damaged during the time that you lived there.
 ---
 question: |
   Did the landlord provide you a **Statement of Account** for your security deposit?
@@ -542,20 +578,29 @@ question: |
 subquestion: Is this right?
 yesno: witnesses_confirmed
 ---
+if not witnesses_confirmed:
+question: |
+  Do you have any other witnesses?
+yesno: witness.there_is_another
+---
 question: |
  You can only claim amounts less than $50,000 using this form. If you feel like you're owed more money than this, you won't be able to get it if you file this form.
 subquestion: |
  Are you trying to claim more than $50,000?
 yesno: claim_more_than_max
+help: |
+  If you go ahead and file this form, $50,000 is the maximum amount that you can get. If you want anything more than $50,000, you will no longer be able to ask for it through RTDRS or any court after you file this form.
 ---
-if claim_more_than_max:
+mandatory: |
+  claim_more_than_max == True
 question: |
   Please talk to someone from ECLC before finishing this form.
 subquestion: |
   You may not be able to claim the full amount that you want to.
 exit: Exit
 ---
-if not claim_more_than_max:
+mandatory: |
+  claim_more_than_max == False
 question:  |
   You're all done
 subquestion: |
@@ -567,7 +612,8 @@ mandatory: true
 question: |
   Your document is ready.
 subquestion: |
-  Thank you for using this interview.
+  Thank you for using this interview. 
+  Please note: you can apply to the RTDRS within 2 years from the date your claim is discovered.
 buttons:
   - Exit: exit
   - Restart: restart
