@@ -30,6 +30,8 @@ auto terms:
       Sets out the amount of the security deposit originally paid, the amount being returned, and any deductions.
     witnesses: |
       People who know about your rental situation and who can speak on your behalf.
+    Fixed term: |
+      You are renting for a set length of time
 ---
 modules:
   - docassemble.base.core
@@ -48,6 +50,13 @@ code: |
   other_term=" "
   tenancy_start=" "
   vacated_date=" "
+  tenancy_agreement=" "
+  previous_order=" "
+  residing=" "
+---
+code: |
+  if served_rtdrs != 'have_served_rtdrs':
+    rtdrs_case_number = 0
 ---
 mandatory: true
 code:  |
@@ -62,6 +71,8 @@ code:  |
   made_court_application
   served_court_application
   served_rtdrs
+  if served_rtdrs:
+    rtdrs_case_number
   # SECTION A
   rental_premises_type
   security_deposit
@@ -589,9 +600,9 @@ code: |
 ---
 code: |
   if file_fee:
-    total_claim = costs_claim + abatement_claim + damages_claim + recovery_claim + 75
+    total_claim = compensation_claim + costs_claim + abatement_claim + damages_claim + recovery_claim + 75
   else:
-    total_claim = costs_claim + abatement_claim + damages_claim + recovery_claim
+    total_claim = compensation_claim + costs_claim + abatement_claim + damages_claim + recovery_claim
 ---
 question: |
   By our calculations, your total claim is $ ${ total_claim }.
