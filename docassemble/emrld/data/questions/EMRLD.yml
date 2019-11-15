@@ -172,44 +172,25 @@ edit:
 ##
 ## Check to see if the RTA applies to the user
 ##
----
 question: |
-  The RTA won't apply if you are in any of the living situations described below.
+  We need to figure out if the RTA applies to your situation:
 subquestion: |
-  Do any of these describe the place you are filing this complaint about?
+  If any of the following describes your situation, the RTA does not apply: 
+  
+  * a mobile home site? 
+  * an apartment connected to a business but you rent the whole space as one?
+  * a hotel room, room in a bed and breakfast or cabin in a campground where you have stayed less than 6 months?
+  * a residence on campus where you do not have your own kitchen and bathroom?
+  * in a nursing home?
+  * in a seniors lodge?
+  * in a supportive housing building?
+  * in a halfway house?
+  * do you share the kitchen, bathroom or living room with your landlord?
+
 field: rta_applies
-choices:
-  - a mobile home site?: mobile
-  - an apartment connected to a business but you rent the whole space as one?: business
-  - a hotel room, room in a bed and breakfast, or a cabin in a campground where you have stayed less than six months?: hotel
-  - a residence on campus where you do not have your own kitchen and bathroom?: campus
-  - in a nursing home?: nursing
-  - in a seniors' lodge?: lodge
-  - in a supportive housing building?: supportive
-  - in a halfway house?: halfway
-  - renting a room and sharing the kitchen, bathroom or living room with your landlord?: share
-  - none of these fit: none
----
-code: |
-  if rta_applies == "none":
-    rta_applicable
-  else:
-    rta_not_applicable
----
-question: |
-  The RTA applies to your situation. 
-subquestion: |
-  Are you ready to proceed?
 buttons:
-  - Let's get started: proceed
-event: rta_applicable
----
-question: |
-  Sorry, the RTA does not apply in your case.
-buttons:
-  - Exit: exit
-  - Start Again: restart
-event: rta_not_applicable
+  - "I'm ready to continue": True
+  - "Exit": False
 ---
 ##
 ## Asks the user which remedy they are seeking
