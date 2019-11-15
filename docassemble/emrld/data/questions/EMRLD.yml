@@ -51,9 +51,7 @@ code: |
   other_premises_type=" "
   other_term=" "
   tenancy_start=" "
-  vacated_date=" "
   tenancy_agreement=" "
-  residing=" "
   abatement_attach=" "
   damages_attach=" "
   deposit_claim=" "
@@ -81,27 +79,29 @@ code:  |
   security_deposit
   tenancy_type
   rent
-  extra_deposit_check
+  residing
+  if not residing:
+    vacated_date
   previous_order
   # SECTION B
-  if remedy == 'termination':
+  if 'termination' in remedy:
     termination
     termination_date
     termination_text
     termination_served
     termination_attach
   # SECTION C
-  if remedy == 'abatement':  
+  if 'abatement' in remedy:  
     abatement_text
     abatement_attach
     abatement_claim
   # SECTION D
-  if remedy == 'damages':
+  if 'damages' in remedy:
     damages_text
     damages_attach
     damages_claim
   # SECTIONS E,F,G
-  if remedy == 'compensation':
+  if 'compensation' in remedy:
     compensation_text
     compensation_claim
   if (remedy == 'deposit') and (security_deposit > 0):
@@ -155,8 +155,6 @@ code: |
  landlord[i].fax
  landlord[i].email
  landlord[i].complete = True
----
-## Test code for a table.
 ---
 table: tenant.table
 rows: tenant
@@ -414,6 +412,16 @@ fields:
       is: other_term
 ---
 question: |
+  Are you still living in this rental?
+yesno: residing
+---
+question: |
+  When did you move out?
+fields:
+  - Date moved out: vacated_date
+    datatype: date
+---
+question: |
   Are there previous Orders of Judgments regarding this tenancy?
 subquestion: |
   You'll need to attach the form for this inspection.
@@ -598,29 +606,29 @@ fields:
     datatype: area
 ---
 code: |
-  if remedy != 'termination':
+  if 'termination' not in remedy:
     termination = False
     termination_date = " "
     termination_text = " "
     termination_served = False
 ---
 code: |
-  if remedy != 'abatement':
+  if 'abatement' not in remedy:
     abatement_claim = 0
     abatement_text = " "  
 ---
 code: |
-  if remedy != 'damages':
+  if 'damages' not in remedy:
     damages_claim = 0
     damages_text = " "
 ---
 code: |
-  if remedy != 'compensation':
+  if 'compensation' not in remedy:
     compensation_claim = 0
     compensation_text = " "
 ---
 code: |
-  if remedy != 'deposit':
+  if 'deposit' not in remedy:
     recovery_claim = 0
     paid_back = paid_back_none
     some_paid = 0
