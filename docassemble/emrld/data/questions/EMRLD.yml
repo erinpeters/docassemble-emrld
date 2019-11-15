@@ -31,7 +31,9 @@ auto terms:
     witnesses: |
       People who know about your rental situation and who can speak on your behalf.
     Fixed term: |
-      You are renting for a set length of time
+      You are renting for a set length of time, such as 6 months, or 1 year.
+    Month to month: |
+      You are renting only for one month at a time.
 ---
 modules:
   - docassemble.base.core
@@ -398,8 +400,8 @@ question: |
 fields:
   - Type of lease: tenancy_type
     choices:
-      - Fixed Term: fixed
-      - Month to Month: monthly
+      - Fixed term: fixed
+      - Month to month: monthly
       - Other: other_term
   - Other tenancy term: other_term
     show if:
