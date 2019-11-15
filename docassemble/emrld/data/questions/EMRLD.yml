@@ -218,15 +218,15 @@ event: rta_not_applicable
 ---
 question: |
   What issue are you are currently having with your rental?
-subquestion: |
-  You can pick more than one.
-field: remedy
-choices:
-  - I need to end my rental: termination
-  - I want to continue to rent but I want to pay less rent: abatement
-  - The landlord broke our agreement and cost me money: damages
-  - I had to do something my landlord was supposed to do and I want to be repaid: compensation
-  - I want to get my security deposit back: deposit
+fields: 
+  - "Select all that apply": remedy
+    datatype: checkboxes
+    choices:
+      - I need to end my rental: termination
+      - I want to continue to rent but I want to pay less rent: abatement
+      - The landlord broke our agreement and cost me money: damages
+      - I had to do something my landlord was supposed to do & I want to be repaid: compensation
+      - I want to get my security deposit back: deposit
 ---
 ## ALEC CAN WE MOVE THIS TO F? Also, the rental may have been terminated (or ended) and the person may still be residing
 ## OR the person may have moved out and the rental agreement could go on for the remainder of a year lease... like 11 months
