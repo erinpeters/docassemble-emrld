@@ -81,6 +81,7 @@ code:  |
   security_deposit
   tenancy_type
   rent
+  extra_deposit_check
   previous_order
   # SECTION B
   if remedy == 'termination':
@@ -381,6 +382,24 @@ fields:
     datatype: currency
     min: 0
 ---
+code: |
+  if security_deposit > rent:
+    extra_deposit = security_deposit - rent
+  else:
+    extra_deposit = 0
+---
+question : |
+  The RTA states that your landlord cannot charge a security deposit more than your monthly rent.
+subquestion: | 
+  %if extra_deposit > 0:
+  You have paid $ ${ extra_deposit } above what you should have paid.
+  We will add this amount to your total claim.
+  %else:
+  Your security deposit is within the allowable amount.
+  %endif
+event: extra_deposit_check
+continue: continue
+---
 question: |
   What type of lease do you have?
 fields:
@@ -619,9 +638,9 @@ code: |
 ---
 code: |
   if file_fee:
-    total_claim = compensation_claim + costs_claim + abatement_claim + damages_claim + recovery_claim + 75
+    total_claim = extra_deposit + compensation_claim + costs_claim + abatement_claim + damages_claim + recovery_claim + 75
   else:
-    total_claim = compensation_claim + costs_claim + abatement_claim + damages_claim + recovery_claim
+    total_claim = extra_deposit + compensation_claim + costs_claim + abatement_claim + damages_claim + recovery_claim
 ---
 question: |
   By our calculations, your total claim is $ ${ total_claim }.
@@ -662,7 +681,6 @@ question: |
   Do you have any other witnesses?
 yesno: witness.there_is_another
 ---
----
 code: |
   if total_claim > 50000:
     excess_claim = total_claim - 50000
@@ -679,6 +697,7 @@ subquestion: |
  % else:
  Your claim is within the amount allowed by the RTA and RTDRS.
  Can we proceed?
+ % endif
 yesno: claim_more_than_max
 help: |
   If you go ahead and file this form, $50,000 is the maximum amount that you can get. If you want anything more than $50,000, you will no longer be able to ask for it through RTDRS or any court after you file this form.
@@ -762,6 +781,4 @@ attachments:
       "costs_text": ${ costs_text }
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
-      "witness.there_are_any": ${ witnessthere_are_any }
-      "witness.name": ${ witnessname }
 ---
