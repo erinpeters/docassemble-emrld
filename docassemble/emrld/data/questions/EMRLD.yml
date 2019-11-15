@@ -49,7 +49,6 @@ code: |
   tenancy_start=" "
   vacated_date=" "
 ---
----
 mandatory: true
 code:  |
   # INTERVIEW FLOW BLOCK
@@ -66,7 +65,8 @@ code:  |
   # SECTION A
   rental_premises_type
   security_deposit
-  tenancy_term
+  tenancy_type
+  rent
   # SECTION B
   if remedy == 'termination':
     termination
@@ -379,16 +379,15 @@ fields:
 question: |
   What type of lease do you have?
 fields:
-  - Type of lease: tenancy_term
+  - Type of lease: tenancy_type
     choices:
       - Fixed Term: fixed
       - Month to Month: monthly
       - Other: other_term
   - Other tenancy term: other_term
     show if:
-      variable: tenancy_term
+      variable: tenancy_type
       is: other_term
----
 ---
 ## SECTION B
 ## TERMINATION OF TENANCY 
@@ -571,12 +570,20 @@ fields:
 code: |
   if remedy != 'abatement':
     abatement_claim = 0
+---
+code: |
   if remedy != 'damages':
     damages_claim = 0
+---
+code: |
   if remedy != 'compensation':
     compensation_claim = 0
+---
+code: |
   if remedy != 'deposit':
     recovery_claim = 0
+---
+code: |
   if other_costs == False:
     costs_claim = 0
 ---
