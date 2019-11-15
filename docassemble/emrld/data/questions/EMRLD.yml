@@ -53,7 +53,6 @@ code: |
   tenancy_start=" "
   vacated_date=" "
   tenancy_agreement=" "
-  previous_order=" "
   residing=" "
   abatement_attach=" "
   damages_attach=" "
@@ -61,10 +60,6 @@ code: |
   deposit_text=" "
   paid_back_none=" "
   termination_attach=" "
----
-code: |
-  if served_rtdrs != 'have_served_rtdrs':
-    rtdrs_case_number = 0
 ---
 mandatory: true
 code:  |
@@ -86,6 +81,7 @@ code:  |
   security_deposit
   tenancy_type
   rent
+  previous_order
   # SECTION B
   if remedy == 'termination':
     termination
@@ -228,8 +224,17 @@ choices:
   - I had to do something my landlord was supposed to do and I want to be repaid: compensation
   - I want to get my security deposit back: deposit
 ---
-## ALEC CAN WE MOVE THIS TO F? Also, the rental may have been terminated (or ended) and the person may still be residing
-## OR the person may have moved out and the rental agreement could go on for the remainder of a year lease... like 11 months
+code: |
+  if remedy == "termination":
+    terminated_yes = False
+---
+code: |
+  if remedy == "abatement":
+    terminated_yes = False
+---
+code: |
+  if remedy == "deposit":
+    terminated_yes = True
 ---
 question: |
   Has this rental already ended, or are you still renting?
@@ -237,10 +242,6 @@ field: terminated_yes
 buttons:
   - "It has ended": True
   - "It is still going": False
----
-code: |
-  if remedy == "termination":
-    terminated_yes = False
 ---
 question: | 
   % if i ==0:
@@ -353,6 +354,10 @@ question: |
 fields:
   - RTDRS case number: rtdrs_case_number
 ---
+code: |
+  if served_rtdrs == "not_served_rtdrs":
+    rtdrs_case_number = " "
+---
 ## SECTION A GENERAL
 ##
 ##
@@ -407,6 +412,12 @@ fields:
     show if:
       variable: tenancy_type
       is: other_term
+---
+question: |
+  Are there previous Orders of Judgments regarding this tenancy?
+subquestion: |
+  You'll need to attach the form for this inspection.
+yesno: previous_order
 ---
 ## SECTION B
 ## TERMINATION OF TENANCY 
@@ -587,24 +598,43 @@ fields:
     datatype: area
 ---
 code: |
+  if remedy != 'termination':
+    termination = False
+    termination_date = " "
+    termination_text = " "
+    termination_served = False
+---
+code: |
   if remedy != 'abatement':
     abatement_claim = 0
+    abatement_text = " "  
 ---
 code: |
   if remedy != 'damages':
     damages_claim = 0
+    damages_text = " "
 ---
 code: |
   if remedy != 'compensation':
     compensation_claim = 0
+    compensation_text = " "
 ---
 code: |
   if remedy != 'deposit':
     recovery_claim = 0
+    paid_back = paid_back_none
+    some_paid = 0
+    date_paid = " "
+    move_in = False
+    move_out = False
+    statement = False
+    recovery_text = " "
+    sd_owed_correct = False
 ---
 code: |
   if other_costs == False:
     costs_claim = 0
+    costs_text = " "
 ---
 code: |
   if file_fee:
@@ -746,6 +776,6 @@ attachments:
       "costs_text": ${ costs_text }
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
-      "witness.there_are_any": ${ witness.there_are_any }
-      "witness.name": ${ witness.name }
+      "witness.there_are_any": ${ witnessthere_are_any }
+      "witness.name": ${ witnessname }
 ---
