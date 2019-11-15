@@ -36,7 +36,7 @@ modules:
   - docassemble.base.util
 ---
 objects:
-  - tenants: DAList.using(object_type=Individual, complete_attribute="complete",there_are_any=True)
+  - tenant: DAList.using(object_type=Individual, complete_attribute="complete",there_are_any=True)
   - landlord: DAList.using(object_type=Individual, complete_attribute="complete", there_are_any=True)
   - witness: DAList.using(object_type=Individual)
 ---
@@ -47,7 +47,7 @@ code:  |
   remedy
   if (remedy == 'abatement') or (remedy == 'damages') or (remedy == 'compensation') or (remedy == 'deposit'):
     terminated_yes
-  tenants.gather()
+  tenant.gather()
   landlord.gather()
   rental_address
   made_court_application
@@ -98,23 +98,23 @@ code:  |
   witness.gather()
   witnesses_confirmed
   claim_more_than_max
-  tenants[0].signature
+  tenant[0].signature
 ---
 code: |
   if i==0:
-     tenants[i].name.first
-     tenants[i].address
-     tenants[i].city
-     tenants[i].province
-     tenants[i].zip
-     tenants[i].phone_number
-     tenants[i].fax
-     tenants[i].email
-     tenants[i].complete = True
+     tenant[i].name.first
+     tenant[i].address
+     tenant[i].city
+     tenant[i].province
+     tenant[i].zip
+     tenant[i].phone
+     tenant[i].fax
+     tenant[i].email
+     tenant[i].complete = True
   else:
-     tenants[i].name.first
-     tenants[i].name.last
-     tenants[i].complete = True
+     tenant[i].name.first
+     tenant[i].name.last
+     tenant[i].complete = True
 ---
 code: |
  landlord[i].name.first
@@ -122,15 +122,15 @@ code: |
  landlord[i].city
  landlord[i].province
  landlord[i].zip
- landlord[i].phone_number
+ landlord[i].phone
  landlord[i].fax
  landlord[i].email
  landlord[i].complete = True
 ---
 ## Test code for a table.
 ---
-table: tenants.table
-rows: tenants
+table: tenant.table
+rows: tenant
 columns: 
   - Name: row_item
 edit:
@@ -214,35 +214,35 @@ question: |
     Tell us about the ${ordinal(i)} tenant.
   % endif
 fields:
-  - First Name: tenants[i].name.first 
-  - Last Name: tenants[i].name.last
+  - First Name: tenant[i].name.first 
+  - Last Name: tenant[i].name.last
 ---
 question: |
   Tell us some more about you.
 fields:
-  - Phone Number: tenants[i].phone_number
+  - Phone Number: tenant[i].phone
     required: false
-  - Email: tenants[i].email
+  - Email: tenant[i].email
     required: false
     datatype: email
-  - Fax: tenants[i].fax
+  - Fax: tenant[i].fax
     required: false
-  - Suite Number: tenants[i].unit
+  - Suite Number: tenant[i].unit
     required: false
-  - Street Address: tenants[i].address
-  - City: tenants[i].city
-  - Province: tenants[i].province
+  - Street Address: tenant[i].address
+  - City: tenant[i].city
+  - Province: tenant[i].province
     default: "AB"
-  - Postal Code: tenants[i].zip
+  - Postal Code: tenant[i].zip
 ---
 question: | 
   Were there any other people living at the rental address?  
-   ${tenants.table}
-    ${tenants.add_action() }
+   ${tenant.table}
+    ${tenant.add_action() }
 
 subquestion: |
   All done?
-noyes: tenants.there_is_another
+noyes: tenant.there_is_another
 ---
 question: |
   % if i==0:  
@@ -255,7 +255,7 @@ question: |
 fields:
   - First Name: landlord[i].name.first 
   - Last Name: landlord[i].name.last
-  - Phone Number: landlord[i].phone_number
+  - Phone Number: landlord[i].phone
     required: false
   - Email: landlord[i].email
     required: false
@@ -278,11 +278,11 @@ question: |
   What is the address of your rental?
 fields:
   - Street Address: rental_address
-    default: ${tenants[0].address}
+    default: ${tenant[0].address}
   - City: rental_city
-    default: ${tenants[0].province}
+    default: ${tenant[0].province}
   - Postal Code: rental_zip
-    default: ${tenants[0].zip}
+    default: ${tenant[0].zip}
 ---
 question: |
  Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
@@ -606,7 +606,7 @@ question:  |
 subquestion: |
   Please sign below to confirm that all of the information that you've provided is true and correct.
   Today's date is ${ today() }.
-signature: tenants[0].signature
+signature: tenant[0].signature
 ---
 mandatory: true
 question: |
@@ -637,11 +637,11 @@ attachments:
       "landlord.city": ${ landlord[0].city }
       "landlord.zip": ${ landlord[0].zip }
       "landlord.email": ${ landlord[0].email }
-      "landlord.phone": ${ landlord.phone }
+      "landlord.phone": ${ landlord[0].phone }
       "landlord.fax": ${ landlord[0].fax }
-      "rental.city": ${ rental.city }
-      "rental.zip": ${ rental.zip }
-      "rental.address": ${ rental.address }
+      "rental.city": ${ rental_city }
+      "rental.zip": ${ rental_zip }
+      "rental.address": ${ rental_address }
       "made_court_application": ${ made_court_application }
       "served_court_application": ${ served_court_application }
       "served_rtdrs": ${ served_rtdrs }
