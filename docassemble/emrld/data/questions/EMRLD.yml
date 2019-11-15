@@ -40,15 +40,6 @@ objects:
   - landlord: DAList.using(object_type=Individual, complete_attribute="complete", there_are_any=True)
   - witness: DAList.using(object_type=Individual)
 ---
-## Variable Initialize block
-## sets certain variables to a blank space for printing
-##
-code: |
-  other_premises_type=" "
-  other_term=" "
-  tenancy_start=" "
-  vacated_date=" "
----
 mandatory: true
 code:  |
   # INTERVIEW FLOW BLOCK
@@ -65,20 +56,26 @@ code:  |
   # SECTION A
   rental_premises_type
   security_deposit
-  rent
+  rental_term
+  rent_attach
+  rental_current
+  rental_judgment
   # SECTION B
   if remedy == 'termination':
     termination
     termination_date
     termination_text
     termination_served
+    termination_attach
   # SECTION C
   if remedy == 'abatement':  
     abatement_text
+    abatement_attach
     abatement_claim
   # SECTION D
   if remedy == 'damages':
     damages_text
+    damages_attach
     damages_claim
   # SECTIONS E,F,G
   if remedy == 'compensation':
@@ -204,6 +201,9 @@ choices:
   - The landlord broke our agreement and cost me money: damages
   - I had to do something my landlord was supposed to do and I want to be repaid: compensation
   - I want to get my security deposit back: deposit
+---
+## ALEC CAN WE MOVE THIS TO F? Also, the rental may have been terminated (or ended) and the person may still be residing
+## OR the person may have moved out and the rental agreement could go on for the remainder of a year lease... like 11 months
 ---
 question: |
   Has this rental already ended, or are you still renting?
@@ -344,7 +344,7 @@ fields:
       - Apartment: apartment
       - Townhouse: townhouse
       - Other: other
-  - Other type of premises: othery_premises_type
+  - Other type of premises: rental_premises_type
     show if:
       variable: rental_premises_type
       is: other
@@ -368,19 +368,6 @@ fields:
   - Rent: rent
     datatype: currency
     min: 0
----
-question: |
-  What type of lease do you have?
-fields:
-  - Type of lease: tenancy_term
-    choices:
-      - Fixed Term: fixed
-      - Month to Month: monthly
-      - Other: other_term
-  - Other tenancy term: other_term
-    show if:
-      variable: tenancy_term
-      is: other_term
 ---
 ## SECTION B
 ## TERMINATION OF TENANCY 
@@ -559,18 +546,6 @@ question: |
 fields:
   - Explain here: costs_text
     datatype: area
----
-code: |
-  if remedy != 'abatement':
-    abatement_claim = 0
-  if remedy != 'damages':
-    damages_claim = 0
-  if remedy != 'compensation':
-    compensation_claim = 0
-  if remedy != 'deposit':
-    recovery_claim = 0
-  if other_costs == False:
-    costs_claim = 0
 ---
 code: |
   if file_fee:
