@@ -122,10 +122,10 @@ code:  |
     costs_claim
     costs_text
   total_claim_correct
+  claim_more_than_max
   # WITNESSES
   witness.gather()
   witnesses_confirmed
-  claim_more_than_max
   tenant[0].signature
 ---
 code: |
@@ -662,21 +662,26 @@ question: |
   Do you have any other witnesses?
 yesno: witness.there_is_another
 ---
+---
+code: |
+  if total_claim > 50000:
+    excess_claim = total_claim - 50000
+  else:
+    excess_claim = 0
+---
 question: |
- You can only claim amounts less than $50,000 using this form. If you feel like you're owed more money than this, you won't be able to get it if you file this form.
+ You can only claim amounts less than $50,000 using this form. 
 subquestion: |
- Are you trying to claim more than $50,000?
+ % if excess_claim > 0:
+ You are trying to claim $ ${ excess_claim } more than $50,000. 
+ You will not be able to claim $ ${ excess_claim }, only $50,000. 
+ Do you understand?
+ % else:
+ Your claim is within the amount allowed by the RTA and RTDRS.
+ Can we proceed?
 yesno: claim_more_than_max
 help: |
   If you go ahead and file this form, $50,000 is the maximum amount that you can get. If you want anything more than $50,000, you will no longer be able to ask for it through RTDRS or any court after you file this form.
----
-mandatory: |
-  claim_more_than_max == True
-question: |
-  Please talk to someone from ECLC before finishing this form.
-subquestion: |
-  You may not be able to claim the full amount that you want to.
-exit: Exit
 ---
 mandatory: |
   claim_more_than_max == False
