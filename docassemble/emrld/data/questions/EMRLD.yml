@@ -53,6 +53,12 @@ code: |
   tenancy_agreement=" "
   previous_order=" "
   residing=" "
+  abatement_attach=" "
+  damages_attach=" "
+  deposit_claim=" "
+  deposit_text=" "
+  paid_back_none=" "
+  termination_attach=" "
 ---
 code: |
   if served_rtdrs != 'have_served_rtdrs':
@@ -738,6 +744,6 @@ attachments:
       "costs_text": ${ costs_text }
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
-      "witness.there_are_any": ${ witnessthere_are_any }
-      "witness.name": ${ witnessname }
+      "witness.there_are_any": ${ witness.there_are_any }
+      "witness.name": ${ witness.name }
 ---
