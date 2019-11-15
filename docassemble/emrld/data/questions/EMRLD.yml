@@ -377,10 +377,10 @@ fields:
       - Fixed Term: fixed
       - Month to Month: monthly
       - Other: other_term
- - Other tenancy term: other_term
-   show if:
-     variable: tenancy_term
-     is: other_term
+  - Other tenancy term: other_term
+    show if:
+      variable: tenancy_term
+      is: other_term
 ---
 ## SECTION B
 ## TERMINATION OF TENANCY 
@@ -559,6 +559,18 @@ question: |
 fields:
   - Explain here: costs_text
     datatype: area
+---
+code: |
+  if remedy != 'abatement':
+    abatement_claim = 0
+  if remedy != 'damages':
+    damages_claim = 0
+  if remedy != 'compensation':
+    compensation_claim = 0
+  if remedy != 'deposit':
+    recovery_claim = 0
+  if other_costs == False:
+    costs_claim = 0
 ---
 code: |
   if file_fee:
