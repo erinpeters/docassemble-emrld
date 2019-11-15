@@ -286,29 +286,37 @@ fields:
 ---
 question: |
  Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
-yesno: made_court_application
+field: made_court_application
+buttons:
+  - Yes, I have.: made_application
+  - No, I have not.: did_not_make_application
 help: |
     Have you already filed papers at the courthouse?
 ---
 question: |
   Have you been served with a Provincial or Court of Queen’s Bench application on this matter?   
-yesno: served_court_application
+field: served_court_application
+buttons:
+  - Yes, I have.: served_application
+  - No, I have not.: did_not_serve_application
 help: |
    Have you been given papers from someone else that talk about this rental issue?
 ---
 question: |
-  Have you ever had an RTDRS application at this rental before?
-fields:
-  - Yes or No: served_rtdrs
-    choices:
-    - Yes
-    - No
-  - Previous application number: rtdrs_case_number
-    show if:
-      variable: served_rtdrs
-      is: Yes
+  Have you received paperwork from the RTDRS about this rental?
+field: served_rtdrs
+buttons:
+  - Yes, I have.: have_served_rtdrs
+  - No, I have not.: not_served_rtdrs
 help: |
   Have you filled out this kind of paperwork before for this same rental property?
+---
+mandatory: |
+  served_rtdrs == "have_served_rtdrs"
+question: |
+  What is the case number from your previous application?
+fields:
+  - RTDRS case number: rtdrs_case_number
 ---
 ## SECTION A GENERAL
 ##
@@ -583,15 +591,16 @@ yesno: claim_more_than_max
 help: |
   If you go ahead and file this form, $50,000 is the maximum amount that you can get. If you want anything more than $50,000, you will no longer be able to ask for it through RTDRS or any court after you file this form.
 ---
-mandatory: true
-if claim_more_than_max:
+mandatory: |
+  claim_more_than_max == True
 question: |
   Please talk to someone from ECLC before finishing this form.
 subquestion: |
   You may not be able to claim the full amount that you want to.
 exit: Exit
 ---
-need not claim_more_than_max:
+mandatory: |
+  claim_more_than_max == False
 question:  |
   You're all done
 subquestion: |
@@ -662,7 +671,7 @@ attachments:
       "move_in": ${ move_in }
       "move_out": ${ move_out }
       "statement": ${ statement }
-      "deposit_reason": ${ deposit_reason }
+      "deposit_reason": ${ deposit_text }
       "deposit_claim": ${ deposit_claim }
       "file_fee": ${ file_fee }
       "other_costs": ${ other_costs }
