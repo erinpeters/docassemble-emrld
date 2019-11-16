@@ -34,6 +34,14 @@ auto terms:
       You are renting for a set length of time, such as 6 months, or 1 year.
     Month to month: |
       You are renting only for one month at a time.
+    Tenancy Agreement: |
+      A document that you and your landlord both signed, which sets out information about the rental such as how long you will live there, how much you will pay, what the rent includes.
+    security deposit: |
+      An amount of money that you gave the landlord when you moved in.
+    Orders: |
+      When a court or a judge has officially told a person to do or not do something.
+    Judgments: |
+      A court's decision on an issue.
 ---
 modules:
   - docassemble.base.core
@@ -50,8 +58,6 @@ objects:
 code: |
   other_premises_type=" "
   other_term=" "
-  tenancy_start=" "
-  tenancy_agreement=" "
   abatement_attach=" "
   damages_attach=" "
   deposit_claim=" "
@@ -76,9 +82,11 @@ code:  |
     rtdrs_case_number
   # SECTION A
   rental_premises_type
+  rent
   security_deposit
   tenancy_type
-  rent
+  tenancy_agreement
+  tenancy_start
   residing
   if not residing:
     vacated_date
@@ -199,7 +207,7 @@ fields:
     datatype: checkboxes
     choices:
       - I need to end my rental: termination
-      - I want to continue to rent but I want to pay less rent: abatement
+      - I want to pay less or no rent because my rental is not liveable: abatement
       - The landlord broke our agreement and cost me money: damages
       - I had to do something my landlord was supposed to do & I want to be repaid: compensation
       - I want to get my security deposit back: deposit
@@ -410,6 +418,21 @@ fields:
     show if:
       variable: tenancy_type
       is: other_term
+help: |
+    Fixed term: You are renting for a set length of time, such as 6 months, or 1 year.
+    Month to month: You are renting only for one month at a time.
+---
+question: |
+  Do you have a Tenancy Agreement?
+subquestion: |
+  You'll need to attach the form for this inspection.
+yesno: tenancy_agreement
+---
+question: |
+  When did you move in?
+fields:
+  - Date moved in: tenancy_start
+    datatype: date
 ---
 question: |
   Are you still living in this rental?
@@ -422,7 +445,7 @@ fields:
     datatype: date
 ---
 question: |
-  Are there previous Orders of Judgments regarding this tenancy?
+  Are there previous Orders or Judgments regarding this tenancy?
 subquestion: |
   You'll need to attach the form for this inspection.
 yesno: previous_order
@@ -457,17 +480,27 @@ yesno: termination_served
 ##
 ---
 question: |
+  If you are not able to live in all or part of your rental, you can ask to pay less rent, or no rent.
+subquestion: |
   Why do you think you should be paying less rent?
 fields:
   - Explain here: abatement_text
     datatype: area
+help: |
+  You may ask to not pay rent, for example, if you can't live in the rental due to a fire, flood damage, or bedbugs.
+  If you are only able to use part of the space, you can ask for reduced rent. 
 ---
 question: |
-  How much extra money have you paid?
+  How much money should be taken off of your rent?
+subquestion: |
+  Please attach any relevant information.
 fields:
   - Value: abatement_claim
     datatype: currency
     min: 0
+help: |
+  This is the total amount that you want your rent to be reduced by.
+  Relevant information to attach may include receipts for hotel rooms or contractors, records of the dates and types of damage, or photos. 
 ---
 ## SECTION D
 ## Damages section
@@ -554,7 +587,7 @@ help: |
   You would have walked around the property and pointed out anything that had been damaged during the time that you lived there.
 ---
 question: |
-  Did the landlord provide you a **Statement of Account** for your security deposit?
+  Did the landlord provide you with a Statement of Account for your security deposit?
 subquestion: |
   You'll need to attach this statement, if you have it. 
 yesno: statement
@@ -591,6 +624,8 @@ yesno: file_fee
 question: |
   Have you spent any other money to file this form that you think the landlord should be required to pay?
 yesno: other_costs
+help: |
+  Costs to file this form could include things like printing costs, photocopying, and any costs you have paid for speaking with a lawyer.
 ---
 question: |
   How much have you spent to file this form that you think the landlord should pay?
@@ -604,6 +639,8 @@ question: |
 fields:
   - Explain here: costs_text
     datatype: area
+help: |
+  Costs to file this form could include things like printing costs, photocopying, and any costs you have paid for speaking with a lawyer.
 ---
 code: |
   if 'termination' not in remedy:
