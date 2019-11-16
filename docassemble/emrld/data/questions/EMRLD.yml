@@ -31,7 +31,7 @@ auto terms:
     witnesses: |
       People who know about your rental situation and who can speak on your behalf.
     Fixed term: |
-      You are renting for a set length of time, such as 6 months, or 1 year.
+      You are renting for a set length of time.
     Month to month: |
       You are renting only for one month at a time.
     Tenancy Agreement: |
@@ -39,9 +39,9 @@ auto terms:
     security deposit: |
       An amount of money that you gave the landlord when you moved in.
     Orders: |
-      When a court or a judge has officially told a person to do or not do something.
+      A court or a judge has told a person to do or not do something.
     Judgments: |
-      A court's decision on an issue.
+      An issue with this rental has already been decided in court.
 ---
 modules:
   - docassemble.base.core
@@ -303,7 +303,7 @@ fields:
   - Postal Code: landlord[i].zip
 ---
 question: | 
-  Is there a second Landlord name?  
+  Do you have any other landlords?  
    ${landlord.table}
     ${landlord.add_action() }
 
@@ -539,7 +539,7 @@ fields:
 ##
 ---
 question: |
-  What did you do that the landlord should have done?
+  What work did you do that the landlord should have done?
 fields:
   - Explain here: compensation_text
     datatype: area
