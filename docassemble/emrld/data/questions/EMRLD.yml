@@ -172,6 +172,14 @@ edit:
   - name.first
   - name.last
 ---
+table: landlord.table
+rows: landlord
+columns: 
+  - Name: row_item
+edit:
+  - name.first
+  - name.last
+---
 ##
 ## Check to see if the RTA applies to the user
 ##
@@ -295,8 +303,13 @@ fields:
   - Postal Code: landlord[i].zip
 ---
 question: | 
-  Do you have another landlord?
-yesno: landlord.there_is_another
+  Is there a second Landlord name?  
+   ${landlord.table}
+    ${landlord.add_action() }
+
+subquestion: |
+  All done?
+noyes: landlord.there_is_another
 ---
 question: |
   What is the address of your rental?
@@ -827,3 +840,4 @@ attachments:
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
 ---
+
