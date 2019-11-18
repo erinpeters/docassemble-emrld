@@ -68,6 +68,7 @@ code: |
 mandatory: true
 code:  |
   # INTERVIEW FLOW BLOCK
+  beginning
   rta_applies
   remedy
   if (remedy == 'abatement') or (remedy == 'damages') or (remedy == 'compensation') or (remedy == 'deposit'):
@@ -135,7 +136,7 @@ code:  |
   # WITNESSES
   witness.gather()
   witnesses_confirmed
-  tenant[0].signature
+  signature
 ---
 code: |
   if i==0:
@@ -185,6 +186,29 @@ edit:
   - name.first
   - name.last
 ---
+##
+## Welcome screen
+##
+question: |
+  Welcome to EMRLD: 
+  
+  Electronic Means for Renter & Landlord Disputes.
+subquestion: |
+  This interview will take you step-by-step through the RTDRS form that you need 
+  to file a complaint against your landlord.
+  
+  If a word is in green, you can click on it to get an definition of that word.
+  
+  A help section is available for many questions. You will see a yellow star at 
+  the top of the screen when the Help system is available for that question.
+  
+  If you have  questions, you can contact the Edmonton Community Legal Centre (ECLC) 
+  at: intake@eclc.ca or (780) 702-1726.
+
+field: beginning
+buttons:
+  - "I'm ready to continue": True
+  - "Exit": False
 ##
 ## Check to see if the RTA applies to the user
 ##
