@@ -816,7 +816,11 @@ attachments:
     filename: RTDRS_Application
     pdf template file: rtdrs-form2.pdf
     fields: 
-      "remedy": ${ remedy }
+      "termination_flag": ${ remedy['termination'] }  
+      "abatement_flag: ${ remedy['abatement'] }
+      "damages_flag: ${ remedy['damages'] }
+      "compensation_flag: ${ remedy['compensation'] }
+      "deposit_flag: ${ remedy['deposit'] }
       "tenant.name": ${ tenant[0].name } 
       "tenant.address": ${ tenant[0].address }
       "tenant.city": ${ tenant[0].city }
