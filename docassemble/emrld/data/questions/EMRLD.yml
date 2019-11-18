@@ -154,15 +154,20 @@ code: |
      tenant[i].complete = True
 ---
 code: |
- landlord[i].name.first
- landlord[i].address
- landlord[i].city
- landlord[i].province
- landlord[i].zip
- landlord[i].phone
- landlord[i].fax
- landlord[i].email
- landlord[i].complete = True
+  if i == 0:
+    landlord[i].name.first
+    landlord[i].address
+    landlord[i].city
+    landlord[i].province
+    landlord[i].zip
+    landlord[i].phone
+    landlord[i].fax
+    landlord[i].email
+    landlord[i].complete = True
+  else:
+    landlord[i].name.first
+    landlord[i].name.last
+    landlord[i].complete = True
 ---
 table: tenant.table
 rows: tenant
@@ -243,7 +248,7 @@ question: |
   % if i ==0:
     What is your name?
   % else:
-    Tell us about the ${ordinal(i)} tenant.
+    Give the name of the ${ordinal(i)} tenant.
   % endif
 fields:
   - First Name: tenant[i].name.first 
@@ -282,11 +287,15 @@ question: |
     
     If you have more than one, we'll ask you for their information afterward.
   % else:
-    Tell us about the ${ordinal(i)} landlord.
+    Please give the ${ordinal(i)} landlord's name.
   % endif
 fields:
   - First Name: landlord[i].name.first 
   - Last Name: landlord[i].name.last
+---
+question: |
+  Please provide the contact information for your landlord.
+fields:
   - Phone Number: landlord[i].phone
     required: false
   - Email: landlord[i].email
@@ -303,7 +312,7 @@ fields:
   - Postal Code: landlord[i].zip
 ---
 question: | 
-  Do you have any other landlords?  
+  If there is more than one landlord add them here. 
    ${landlord.table}
     ${landlord.add_action() }
 
@@ -317,7 +326,7 @@ fields:
   - Street Address: rental_address
     default: ${tenant[0].address}
   - City: rental_city
-    default: ${tenant[0].province}
+    default: ${tenant[0].city}
   - Postal Code: rental_zip
     default: ${tenant[0].zip}
 ---
