@@ -209,6 +209,7 @@ field: beginning
 buttons:
   - "I'm ready to continue": True
   - "Exit": False
+---
 ##
 ## Check to see if the RTA applies to the user
 ##
