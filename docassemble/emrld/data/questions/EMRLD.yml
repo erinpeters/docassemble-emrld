@@ -767,7 +767,7 @@ question:  |
 subquestion: |
   Please sign below to confirm that all of the information that you've provided is true and correct.
   Today's date is ${ today() }.
-signature: tenant[0].signature
+signature: signature
 ---
 mandatory: true
 question: |
@@ -839,5 +839,6 @@ attachments:
       "costs_text": ${ costs_text }
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
+      "signature": ${ signature }
 ---
 
