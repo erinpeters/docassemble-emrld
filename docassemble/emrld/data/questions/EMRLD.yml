@@ -220,6 +220,30 @@ fields:
       - I had to do something my landlord was supposed to do & I want to be repaid: compensation
       - I want to get my security deposit back: deposit
 ---
+## Need to fill out PDF
+##
+code: |
+  if remedy['termination']:
+    termination_flag= True
+  else:
+    termination_flag= False
+  if remedy['abatement']:
+    abatement_flag=True
+  else:
+    abatement_flag= False 
+  if remedy['damages']:
+    damages_flag= True
+  else:
+    damages_flag= False
+  if remedy['compensation']:
+    compensation_flag= True
+  else:
+    compensation_flag= False
+  if remedy['deposit']:
+    deposit_flag= True
+  else:
+    deposit_flag= False
+---
 code: |
   if remedy == "termination":
     terminated_yes = False
@@ -783,7 +807,11 @@ attachments:
     filename: RTDRS_Application
     pdf template file: rtdrs-form2.pdf
     fields: 
-      "remedy": ${ remedy }
+      "termination_flag": ${ termination_flag }  
+      "abatement_flag": ${ abatement_flag }
+      "damages_flag": ${ damages_flag }
+      "compensation_flag": ${ compensation_flag }
+      "deposit_flag": ${ deposit_flag }
       "tenant.name": ${ tenant[0].name } 
       "tenant.address": ${ tenant[0].address }
       "tenant.city": ${ tenant[0].city }
