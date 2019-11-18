@@ -71,7 +71,7 @@ code:  |
   beginning
   rta_applies
   remedy
-  if (remedy == 'abatement') or (remedy == 'damages') or (remedy == 'compensation') or (remedy == 'deposit'):
+  if termination not in remedy:
     terminated_yes
   tenant.gather()
   landlord.gather()
@@ -113,7 +113,7 @@ code:  |
   if 'compensation' in remedy:
     compensation_text
     compensation_claim
-  if (remedy == 'deposit') and (security_deposit > 0):
+  if ('deposit' in remedy) and (security_deposit > 0):
     paid_back
     if paid_back == "paid_back_some":
       some_paid
@@ -775,6 +775,7 @@ yesno: witness.there_is_another
 code: |
   if total_claim > 50000:
     excess_claim = total_claim - 50000
+    total_claim = 50000
   else:
     excess_claim = 0
 ---
@@ -789,16 +790,20 @@ subquestion: |
  Your claim is within the amount allowed by the RTA and RTDRS.
  Can we proceed?
  % endif
-yesno: claim_more_than_max
+field: claim_amount_ok
+buttons:
+  - "Yes, proceed with my claim": True
+  - "Exit": False
 help: |
   If you go ahead and file this form, $50,000 is the maximum amount that you can get. If you want anything more than $50,000, you will no longer be able to ask for it through RTDRS or any court after you file this form.
 ---
 mandatory: |
-  claim_more_than_max == False
+  claim_amount_ok == True
 question:  |
-  You're all done
+  You're all done!
 subquestion: |
-  Please sign below to confirm that all of the information that you've provided is true and correct.
+  Please sign below to confirm that all of the information that you've provided is true and correct,
+  and that your total claim amount is $ ${ total_claim }. 
   Today's date is ${ today() }.
 signature: signature
 ---
