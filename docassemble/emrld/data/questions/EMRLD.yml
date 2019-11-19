@@ -68,10 +68,9 @@ code: |
 mandatory: true
 code:  |
   # INTERVIEW FLOW BLOCK
-  beginning
   rta_applies
   remedy
-  if termination not in remedy:
+  if (remedy == 'abatement') or (remedy == 'damages') or (remedy == 'compensation') or (remedy == 'deposit'):
     terminated_yes
   tenant.gather()
   landlord.gather()
@@ -113,7 +112,7 @@ code:  |
   if 'compensation' in remedy:
     compensation_text
     compensation_claim
-  if ('deposit' in remedy) and (security_deposit > 0):
+  if (remedy == 'deposit') and (security_deposit > 0):
     paid_back
     if paid_back == "paid_back_some":
       some_paid
@@ -136,7 +135,7 @@ code:  |
   # WITNESSES
   witness.gather()
   witnesses_confirmed
-  signature
+  tenant[0].signature
 ---
 code: |
   if i==0:
@@ -155,20 +154,15 @@ code: |
      tenant[i].complete = True
 ---
 code: |
-  if i == 0:
-    landlord[i].name.first
-    landlord[i].address
-    landlord[i].city
-    landlord[i].province
-    landlord[i].zip
-    landlord[i].phone
-    landlord[i].fax
-    landlord[i].email
-    landlord[i].complete = True
-  else:
-    landlord[i].name.first
-    landlord[i].name.last
-    landlord[i].complete = True
+ landlord[i].name.first
+ landlord[i].address
+ landlord[i].city
+ landlord[i].province
+ landlord[i].zip
+ landlord[i].phone
+ landlord[i].fax
+ landlord[i].email
+ landlord[i].complete = True
 ---
 table: tenant.table
 rows: tenant
@@ -185,30 +179,6 @@ columns:
 edit:
   - name.first
   - name.last
----
-##
-## Welcome screen
-##
-question: |
-  Welcome to EMRLD: 
-  
-  Electronic Means for Renter & Landlord Disputes.
-subquestion: |
-  This interview will take you step-by-step through the RTDRS form that you need 
-  to file a complaint against your landlord.
-  
-  If a word is in green, you can click on it to get an definition of that word.
-  
-  A help section is available for many questions. You will see a yellow star at 
-  the top of the screen when the Help system is available for that question.
-  
-  If you have  questions, you can contact the Edmonton Community Legal Centre (ECLC) 
-  at: intake@eclc.ca or (780) 702-1726.
-
-field: beginning
-buttons:
-  - "I'm ready to continue": True
-  - "Exit": False
 ---
 ##
 ## Check to see if the RTA applies to the user
@@ -273,7 +243,7 @@ question: |
   % if i ==0:
     What is your name?
   % else:
-    Give the name of the ${ordinal(i)} tenant.
+    Tell us about the ${ordinal(i)} tenant.
   % endif
 fields:
   - First Name: tenant[i].name.first 
@@ -312,15 +282,11 @@ question: |
     
     If you have more than one, we'll ask you for their information afterward.
   % else:
-    Please give the ${ordinal(i)} landlord's name.
+    Tell us about the ${ordinal(i)} landlord.
   % endif
 fields:
   - First Name: landlord[i].name.first 
   - Last Name: landlord[i].name.last
----
-question: |
-  Please provide the contact information for your landlord.
-fields:
   - Phone Number: landlord[i].phone
     required: false
   - Email: landlord[i].email
@@ -337,7 +303,7 @@ fields:
   - Postal Code: landlord[i].zip
 ---
 question: | 
-  If there is more than one landlord add them here. 
+  Do you have any other landlords?  
    ${landlord.table}
     ${landlord.add_action() }
 
@@ -351,7 +317,7 @@ fields:
   - Street Address: rental_address
     default: ${tenant[0].address}
   - City: rental_city
-    default: ${tenant[0].city}
+    default: ${tenant[0].province}
   - Postal Code: rental_zip
     default: ${tenant[0].zip}
 ---
@@ -776,7 +742,6 @@ yesno: witness.there_is_another
 code: |
   if total_claim > 50000:
     excess_claim = total_claim - 50000
-    total_claim = 50000
   else:
     excess_claim = 0
 ---
@@ -791,22 +756,18 @@ subquestion: |
  Your claim is within the amount allowed by the RTA and RTDRS.
  Can we proceed?
  % endif
-field: claim_amount_ok
-buttons:
-  - "Yes, proceed with my claim": True
-  - "Exit": False
+yesno: claim_more_than_max
 help: |
   If you go ahead and file this form, $50,000 is the maximum amount that you can get. If you want anything more than $50,000, you will no longer be able to ask for it through RTDRS or any court after you file this form.
 ---
 mandatory: |
-  claim_amount_ok == True
+  claim_more_than_max == False
 question:  |
-  You're all done!
+  You're all done
 subquestion: |
-  Please sign below to confirm that all of the information that you've provided is true and correct,
-  and that your total claim amount is $ ${ total_claim }. 
+  Please sign below to confirm that all of the information that you've provided is true and correct.
   Today's date is ${ today() }.
-signature: signature
+signature: tenant[0].signature
 ---
 mandatory: true
 question: |
@@ -822,11 +783,7 @@ attachments:
     filename: RTDRS_Application
     pdf template file: rtdrs-form2.pdf
     fields: 
-      "termination_flag": ${ remedy['termination'] }  
-      "abatement_flag": ${ remedy['abatement'] }
-      "damages_flag": ${ remedy['damages'] }
-      "compensation_flag": ${ remedy['compensation'] }
-      "deposit_flag": ${ remedy['deposit'] }
+      "remedy": ${ remedy }
       "tenant.name": ${ tenant[0].name } 
       "tenant.address": ${ tenant[0].address }
       "tenant.city": ${ tenant[0].city }
@@ -882,6 +839,5 @@ attachments:
       "costs_text": ${ costs_text }
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
-      "signature": ${ signature }
 ---
 
