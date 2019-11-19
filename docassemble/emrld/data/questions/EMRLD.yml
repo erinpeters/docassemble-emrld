@@ -56,6 +56,11 @@ objects:
 ## sets certain variables to a blank space for printing
 ##
 code: |
+  abatement_claim_hold=0
+  termination_served_hold="  "
+  termination_text_hold="  "
+  termination_date_hold="  "
+  statement_hold=False
   move_out_hold=False
   move_in_hold=False
   date_paid_hold="  "
@@ -103,8 +108,11 @@ code:  |
   if remedy['termination']:
     termination
     termination_date
+    termination_date_hold=termination_date
     termination_text
+    termination_text_hold=termination_text
     termination_served
+    termination_served_hold=termination_served
     termination_attach
   # SECTION C
   if remedy['abatement']:  
@@ -112,6 +120,7 @@ code:  |
     abatement_text_hold=abatement_text
     abatement_attach
     abatement_claim
+    abatement_claim_hold=abatement_claim
   # SECTION D
   if remedy['damages']:
     damages_text
@@ -125,9 +134,9 @@ code:  |
     compensation_claim
   if (remedy['deposit']) and (security_deposit > 0):
     paid_back
-    if paid_back['paid_back_some']:
+    if paid_back=='paid_back_some':
       some_paid
-    if (paid_back['paid_back_all']) or (paid_back['paid_back_some']):
+    if (paid_back=='paid_back_all') or (paid_back=='paid_back_some'):
       date_paid
       date_paid_hold=date_paid
     move_in
@@ -135,6 +144,7 @@ code:  |
       move_out
       move_out_hold=move_out
     statement
+    statement_hold=statement
     if recovery_claim > 0:
       recovery_text
       sd_owed_correct
@@ -701,29 +711,33 @@ help: |
   Costs to file this form could include things like printing costs, photocopying, and any costs you have paid for speaking with a lawyer.
 ---
 code: |
-  if 'termination' not in remedy:
+  if remedy['termination'] == False:
     termination = False
     termination_date = " "
+    termination_date_hold=termination_date
     termination_text = " "
+    termination_text_hold=termination_text
     termination_served = False
+    termination_served_hold=termination_served
 ---
 code: |
-  if 'abatement' not in remedy:
+  if remedy['abatement']==False:
     abatement_claim = 0
+    abatement_claim_hold=abatement_claim
     abatement_text_hold = " "  
 ---
 code: |
-  if 'damages' not in remedy:
+  if remedy['damages']==False:
     damages_claim = 0
     damages_text = " "
 ---
 code: |
-  if 'compensation' not in remedy:
+  if remedy['compensation']==False:
     compensation_claim = 0
     compensation_text = " "
 ---
 code: |
-  if 'deposit' not in remedy:
+  if remedy['deposit']==False:
     recovery_claim = 0
     paid_back = paid_back_none
     some_paid = 0
@@ -732,6 +746,7 @@ code: |
     move_in_hold=move_in
     move_out = False
     statement = False
+    statement_hold=statement
     recovery_text = " "
     sd_owed_correct = False
 ---
@@ -873,11 +888,11 @@ attachments:
       "residing": ${ residing }
       "vacated_date": ${ vacated_date_hold }
       "previous_order": ${ previous_order }
-      "termination_date": ${ termination_date }
-      "termination_text": ${ termination_text }
-      "termination_served": ${ termination_served }
+      "termination_date": ${ termination_date_hold }
+      "termination_text": ${ termination_text_hold }
+      "termination_served": ${ termination_served_hold }
       "abatement_text": ${ abatement_text_hold }
-      "abatement_claim": ${ abatement_claim }
+      "abatement_claim": ${ abatement_claim_hold }
       "damages_text": ${ damages_text_hold }
       "damages_claim": ${ damages_claim }
       "compensation_text": ${ compensation_text_hold }
@@ -886,7 +901,7 @@ attachments:
       "paid_back_none": ${ paid_back_none }
       "move_in": ${ move_in_hold }
       "move_out": ${ move_out_hold }
-      "statement": ${ statement }
+      "statement": ${ statement_hold }
       "deposit_reason": ${ deposit_text }
       "deposit_claim": ${ deposit_claim }
       "file_fee": ${ file_fee }
