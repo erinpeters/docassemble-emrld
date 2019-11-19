@@ -66,21 +66,19 @@ sections:
   - yourrental: About your rental
     subsections:
       - rentaladdress: Address
+      - courtapps: My court applications
+      - papersserved: Papers served on me
+      - pastrtdrs: Past RTDRS
       - rentaltype: Type of place
       - monthlyrent: Rent
       - deposit: Security deposit
       - leasetype: Type of lease
       - agreement: Tenancy Agreement
-      - moveindate: Move in date
-      - moveoutdate: Move out date
+      - residentstatus: Still living there?
       - ordersjudgments: Orders or Judgments
-  - previous: Previous applications
-    subsections:
-      - courtapps: My court applications
-      - papersserved: Papers served on me
-      - pastrtdrs: Past RTDRS
   - tenancytermination: Termination of tenancy
     subsections:
+      - movingout: Moving out?
       - landlordknows: Does your landlord know?
   - payless: Abatement (pay less rent)
     subsections:
@@ -174,8 +172,6 @@ code:  |
   beginning
   rta_applies
   remedy
-  if termination not in remedy:
-    terminated_yes
   tenant.gather()
   landlord.gather()
   rental_address
@@ -195,7 +191,7 @@ code:  |
     vacated_date
   previous_order
   # SECTION B
-  if 'termination' in remedy:
+  if 'terminating' in remedy:
     termination
     termination_date
     termination_text
@@ -343,7 +339,7 @@ fields:
   - "Select all that apply": remedy
     datatype: checkboxes
     choices:
-      - I need to end my rental: termination
+      - I need to end my rental: terminating
       - I want to pay less or no rent because my rental is not liveable: abatement
       - The landlord broke our agreement and cost me money: damages
       - I had to do something my landlord was supposed to do & I want to be repaid: compensation
@@ -351,7 +347,7 @@ fields:
 section: problem
 ---
 code: |
-  if remedy == "termination":
+  if remedy == "terminating":
     terminated_yes = False
 ---
 code: |
@@ -467,7 +463,7 @@ buttons:
   - No, I have not.: did_not_make_application
 help: |
     Have you already filed papers at the courthouse?
-section: courtappps
+section: courtapps
 ---
 question: |
   Have you been served with a Provincial or Court of Queen’s Bench application on this matter?   
@@ -531,6 +527,7 @@ fields:
   - Describe Other: other_premises_type
     js show if:
       val("rental_premises_type['other']")
+section: rentaltype
 ---
 question: |
   How much did you pay as a security deposit for this rental?
@@ -614,6 +611,7 @@ section: agreement
 question: |
   Are you still living in this rental?
 yesno: residing
+section: residentstatus
 ---
 question: |
   When did you move out?
@@ -624,7 +622,7 @@ fields:
 question: |
   Are there previous Orders or Judgments regarding this tenancy?
 subquestion: |
-  You'll need to attach the form for this inspection.
+  You'll need to attach these documents, if you have them.
 yesno: previous_order
 section: ordersjudgments
 ---
@@ -836,7 +834,7 @@ help: |
   Costs to file this form could include things like printing costs, photocopying, and any costs you have paid for speaking with a lawyer.
 ---
 code: |
-  if 'termination' not in remedy:
+  if 'terminating' not in remedy:
     termination = False
     termination_date = " "
     termination_text = " "
@@ -969,7 +967,7 @@ attachments:
     filename: RTDRS_Application
     pdf template file: rtdrs-form2.pdf
     fields: 
-      "termination_flag": ${ remedy['termination'] }  
+      "termination_flag": ${ remedy['terminating'] }  
       "abatement_flag": ${ remedy['abatement'] }
       "damages_flag": ${ remedy['damages'] }
       "compensation_flag": ${ remedy['compensation'] }
