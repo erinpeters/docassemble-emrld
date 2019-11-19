@@ -56,6 +56,12 @@ objects:
 ## sets certain variables to a blank space for printing
 ##
 code: |
+  move_out_hold=False
+  move_in_hold=False
+  date_paid_hold="  "
+  compensation_text_hold="  "
+  damages_text_hold="  "
+  abatement_text_hold="  "
   other_premises_type=" "
   other_term=" "
   abatement_attach=" "
@@ -87,8 +93,11 @@ code:  |
   tenancy_agreement
   tenancy_start
   residing
-  if not residing:
+  if residing == False:
     vacated_date
+    vacated_date_hold = vacated_date
+  else:
+    vacated_date_hold = "   "
   previous_order
   # SECTION B
   if remedy['termination']:
@@ -100,26 +109,31 @@ code:  |
   # SECTION C
   if remedy['abatement']:  
     abatement_text
+    abatement_text_hold=abatement_text
     abatement_attach
     abatement_claim
   # SECTION D
   if remedy['damages']:
     damages_text
+    damages_text_hold=damages_text
     damages_attach
     damages_claim
   # SECTIONS E,F,G
   if remedy['compensation']:
     compensation_text
+    compensation_text_hold=compensation_text
     compensation_claim
-  if ('deposit' in remedy) and (security_deposit > 0):
+  if (remedy['deposit']) and (security_deposit > 0):
     paid_back
-    if paid_back == "paid_back_some":
+    if paid_back['paid_back_some']:
       some_paid
-    if (paid_back == "paid_back_all") or (paid_back == "paid_back_some"):
+    if (paid_back['paid_back_all']) or (paid_back['paid_back_some']):
       date_paid
+      date_paid_hold=date_paid
     move_in
     if terminated_yes:
       move_out
+      move_out_hold=move_out
     statement
     if recovery_claim > 0:
       recovery_text
@@ -130,7 +144,6 @@ code:  |
     costs_claim
     costs_text
   total_claim_correct
-  claim_more_than_max
   # WITNESSES
   witness.gather()
   witnesses_confirmed
@@ -697,7 +710,7 @@ code: |
 code: |
   if 'abatement' not in remedy:
     abatement_claim = 0
-    abatement_text = " "  
+    abatement_text_hold = " "  
 ---
 code: |
   if 'damages' not in remedy:
@@ -716,6 +729,7 @@ code: |
     some_paid = 0
     date_paid = " "
     move_in = False
+    move_in_hold=move_in
     move_out = False
     statement = False
     recovery_text = " "
@@ -857,21 +871,21 @@ attachments:
       "tenancy_agreement": ${ tenancy_agreement }
       "tenancy_start": ${ tenancy_start }
       "residing": ${ residing }
-      "vacated_date": ${ vacated_date }
+      "vacated_date": ${ vacated_date_hold }
       "previous_order": ${ previous_order }
       "termination_date": ${ termination_date }
       "termination_text": ${ termination_text }
       "termination_served": ${ termination_served }
-      "abatement_text": ${ abatement_text }
+      "abatement_text": ${ abatement_text_hold }
       "abatement_claim": ${ abatement_claim }
-      "damages_text": ${ damages_text }
+      "damages_text": ${ damages_text_hold }
       "damages_claim": ${ damages_claim }
-      "compensation_text": ${ compensation_text }
+      "compensation_text": ${ compensation_text_hold }
       "compensation_claim": ${ compensation_claim }
-      "date_paid": ${ date_paid }
+      "date_paid": ${ date_paid_hold }
       "paid_back_none": ${ paid_back_none }
-      "move_in": ${ move_in }
-      "move_out": ${ move_out }
+      "move_in": ${ move_in_hold }
+      "move_out": ${ move_out_hold }
       "statement": ${ statement }
       "deposit_reason": ${ deposit_text }
       "deposit_claim": ${ deposit_claim }
