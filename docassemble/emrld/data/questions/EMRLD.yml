@@ -64,9 +64,6 @@ code: |
   deposit_text=" "
   paid_back_none=" "
   termination_attach=" "
-  tenancy_start=" "
-  vacated_date=" "
-  exhibit_order=" "
 ---
 mandatory: true
 code:  |
@@ -89,7 +86,10 @@ code:  |
   security_deposit
   tenancy_type
   tenancy_agreement
+  tenancy_start
   residing
+  if not residing:
+    vacated_date
   previous_order
   # SECTION B
   if 'termination' in remedy:
@@ -365,47 +365,37 @@ code: |
 ##
 ---
 question: |
-  The space you rent is a(n):
-#or rented
+  What sort of place are you renting? / did you rent?
 fields: 
   - Type of Premises: rental_premises_type
-    datatype: checkboxes
     choices:
       - House: house
-        help: |
-          You rent the entire house
-      - Main floor: main_floor
-        help: |
-          You rent the upper or main floor of a house. The basement might be rented to someone else.
+      - Main floor of a house: main_floor
       - Basement suite: basement
-        help: |
-          You rent the whole basement or a basement suite. The living space might have a separate door and it might have a living room, a kitchen and a bathroom.
       - Room: room
-        help: |
-          You rent a room (or rooms) in a house. The kitchen, living room, or bathroom might be shared with other renters.
       - Apartment: apartment
       - Townhouse: townhouse
       - Other: other
-    none of the above: False
-  - Describe Other: other_premises_type
-    js show if:
-      val("rental_premises_type['other']")
+  - Other type of premises: rental_premises_type
+    show if:
+      variable: rental_premises_type
+      is: other
 ---
 question: |
   How much did you pay as a security deposit for this rental?
 subquestion: |
-  It is often called a damage deposit. If you didn't pay any deposit, enter 0.
+  If you didn't pay any security deposit, enter 0.
 fields:
-  - Deposit: security_deposit
+  - Security deposit: security_deposit
     datatype: currency
     min: 0
 help: |
-  A security deposit is the money you give the landlord when you move in. 
-  The deposit is not rent. It can be used for damage or repairs to the rental.
-  The landlord must return your deposit when you move out. They may use all or part of the deposit for their costs if the RTA allows it.
+  A security deposit is an amount of money that you gave the landlord when you moved in. 
+  This is on top of the rent that you pay. 
+  The landlord has to give this money back to you when you move out as long as you leave the rental in good condition.
 ---
 question: |
-  How much is the rent each month?
+  How much are you paying in rent every month?
 fields:
   - Rent: rent
     datatype: currency
@@ -418,11 +408,11 @@ code: |
     extra_deposit = 0
 ---
 question : |
-  By law, your landlord cannot hold a deposit more than the monthly rent.
+  The RTA states that your landlord cannot charge a security deposit more than your monthly rent.
 subquestion: | 
   %if extra_deposit > 0:
-  You have paid $ ${ extra_deposit } more than you should have.
-  The extra amount will be added to your total claim.
+  You have paid $ ${ extra_deposit } above what you should have paid.
+  We will add this amount to your total claim.
   %else:
   Your security deposit is within the allowable amount.
   %endif
@@ -430,41 +420,32 @@ event: extra_deposit_check
 continue: continue
 ---
 question: |
-  Is the type of tenancy Fixed, Monthly, or Other?
-subquestion: |
-  The rental term is the length of time you agreed to rent the property.
+  What type of lease do you have?
 fields:
-  - "I rent": tenancy_type
+  - Type of lease: tenancy_type
     choices:
-      - on a fixed term: fixed
-      - from month to month: monthly
-    disable others: True
-  - note: |
-      If not fixed or monthly, please identify what other term you agreed to below:
-  - Other: other_term
+      - Fixed term: fixed
+      - Month to month: monthly
+      - Other: other_term
+  - Other tenancy term: other_term
     show if:
       variable: tenancy_type
       is: other_term
 help: |
-    Fixed term: You rent for a set length of time, like 6 months, or 1 year.
-    Month to month: You rent for one month at a time, or the rental is open (without an end date).
+    Fixed term: You are renting for a set length of time, such as 6 months, or 1 year.
+    Month to month: You are renting only for one month at a time.
 ---
 question: |
-  It is helpful if your Tenancy Agreement is in writing and you can provide a copy.
+  Do you have a Tenancy Agreement?
+subquestion: |
+  You'll need to attach the form for this inspection.
+yesno: tenancy_agreement
+---
+question: |
+  When did you move in?
 fields:
-  - "Do you have a copy?": tenancy_agreement
-    datatype: yesnoradio
-  - "When did the tenancy start?": tenancy_start
-  datatype: date
-  help: |
-    The day you moved in, got keys, or the date you agreed to start paying rent.
-  js show if: |
-    val('tenancy_agreement') == false
-  - "Marked as 'ITEM: ": exhibit
-  help: |
-    You need to label each document you attach as evidence. The documents must be labeled "ITEM A", "ITEM B", "ITEM C", etc on this form *and* the document itself.
-  js show if: |
-    val('tenancy_agreement') == true
+  - Date moved in: tenancy_start
+    datatype: date
 ---
 question: |
   Are you still living in this rental?
