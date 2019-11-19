@@ -71,8 +71,6 @@ code:  |
   beginning
   rta_applies
   remedy
-  if termination not in remedy:
-    terminated_yes
   tenant.gather()
   landlord.gather()
   rental_address
@@ -93,24 +91,24 @@ code:  |
     vacated_date
   previous_order
   # SECTION B
-  if 'termination' in remedy:
+  if remedy['termination']:
     termination
     termination_date
     termination_text
     termination_served
     termination_attach
   # SECTION C
-  if 'abatement' in remedy:  
+  if remedy['abatement']:  
     abatement_text
     abatement_attach
     abatement_claim
   # SECTION D
-  if 'damages' in remedy:
+  if remedy['damages']:
     damages_text
     damages_attach
     damages_claim
   # SECTIONS E,F,G
-  if 'compensation' in remedy:
+  if remedy['compensation']:
     compensation_text
     compensation_claim
   if ('deposit' in remedy) and (security_deposit > 0):
