@@ -132,7 +132,7 @@ code:  |
     costs_claim
     costs_text
   total_claim_correct
-  claim_more_than_max
+  claim_amount_ok
   # WITNESSES
   witness.gather()
   witnesses_confirmed
