@@ -109,7 +109,7 @@ sections:
   - witnesses: Witnesses
   - pleasesign: Signature
   - conclusion: Application complete
-progressive: False
+progressive: True
 ---
 features:
   navigation: True
@@ -289,6 +289,74 @@ code: |
 event: movingout
 code: |
   force_ask('termination')
+---
+event: landlordknows
+code: |
+  force_ask('termination_served')
+---
+event: notlive
+code: |
+  force_ask('abatement_text')
+---
+event: abatementamount
+code: |
+  force_ask('abatement_claim')
+---
+event: landlordharm
+code: |
+  force_ask('damages_text')
+---
+event: damagesamount
+code: |
+  force_ask('damages_claim')
+---
+event: fixthings
+code: |
+  force_ask('compensation_text')
+---
+event: compensationamount
+code: |
+  force_ask('compensation_claim')
+---
+event: securityclaim
+code: |
+  force_ask('paid_back')
+---
+event: movein
+code: |
+  force_ask('move_in')
+---
+event: moveout
+code: |
+  force_ask('move_out')
+---
+event: accountstatement
+code: |
+  force_ask('statement')
+---
+event: returndeposit
+code: |
+  force_ask('recovery_text')
+---
+event: filefee
+code: |
+  force_ask('file_fee')
+---
+event: otherfile
+code: |
+  force_ask('other_costs')
+---
+event: witnesses
+code: |
+  force_ask('witness.there_are_any')
+---
+event: pleasesign
+code: |
+  force_ask('signature')
+---
+event: conclusion
+code: |
+  force_ask('exit')
 ---
 event: welcome_back
 question: |
