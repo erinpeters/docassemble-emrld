@@ -52,6 +52,104 @@ objects:
   - landlord: DAList.using(object_type=Individual, complete_attribute="complete", there_are_any=True)
   - witness: DAList.using(object_type=Individual)
 ---
+sections:
+  - intro: Introduction
+    subsections:
+	  - rta: Does the RTA apply?
+	  - problem: What is the problem?
+  - about: About you
+    subsections:
+	  - yourname: Name
+    - yourinfo: Contact info
+	  - othertenants: Other tenants
+  - yourlandlord: About your landlord
+  - yourrental: About your rental
+    subsections:
+      - rentaladdress: Address
+      - courtapps: My court applications
+      - papersserved: Papers served on me
+      - pastrtdrs: Past RTDRS
+      - rentaltype: Type of place
+      - monthlyrent: Rent
+      - deposit: Security deposit
+      - leasetype: Type of lease
+      - agreement: Tenancy Agreement
+      - residentstatus: Still living there?
+      - ordersjudgments: Orders or Judgments
+  - tenancytermination: Termination of tenancy
+    subsections:
+      - movingout: Moving out?
+      - landlordknows: Does your landlord know?
+  - payless: Abatement (pay less rent)
+    subsections:
+      - notlive: Not able to live there?
+      - abatementamount: Abatement amount
+  - damages: Damages
+    subsections:
+      - landlordharm: Has the landlord cost you money?
+      - damagesamount: Amount of damages
+  - compensation: Compensation
+    subsections:
+      - fixthings: Did you fix things on the property?
+      - compensationamount: Amount of compensation
+  - securityclaim: Security deposit claim
+    subsections:
+      - movein: Move in inspection
+      - moveout: Move out inspection
+      - accountstatement: Statement of Account
+      - returndeposit: Should you get your deposit back?
+  - costs: Costs
+    subsections:
+      - filefee: Filing fee
+      - otherfile: Other filing costs
+  - witnesses: Witnesses
+  - pleasesign: Signature
+  - conclusion: Application complete
+progressive: False
+---
+features:
+  navigation: True
+  progress bar: True
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=0.5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+event: road_map
+question: |
+  Roadmap
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to resume the
+  interview.
+buttons:
+  Continue: continue
+---
 ## Variable Initialize block
 ## sets certain variables to a blank space for printing
 ##
@@ -75,6 +173,9 @@ code: |
   deposit_text=" "
   paid_back_none=" "
   termination_attach=" "
+  tenancy_start=" "
+  vacated_date=" "
+  exhibit_order=" "
 ---
 mandatory: true
 code:  |
@@ -96,7 +197,6 @@ code:  |
   security_deposit
   tenancy_type
   tenancy_agreement
-  tenancy_start
   residing
   if residing == False:
     vacated_date
@@ -105,7 +205,7 @@ code:  |
     vacated_date_hold = "   "
   previous_order
   # SECTION B
-  if remedy['termination']:
+  if remedy['terminating']:
     termination
     termination_date
     termination_date_hold=termination_date
@@ -176,20 +276,15 @@ code: |
      tenant[i].complete = True
 ---
 code: |
-  if i == 0:
-    landlord[i].name.first
-    landlord[i].address
-    landlord[i].city
-    landlord[i].province
-    landlord[i].zip
-    landlord[i].phone
-    landlord[i].fax
-    landlord[i].email
-    landlord[i].complete = True
-  else:
-    landlord[i].name.first
-    landlord[i].name.last
-    landlord[i].complete = True
+ landlord[i].name.first
+ landlord[i].address
+ landlord[i].city
+ landlord[i].province
+ landlord[i].zip
+ landlord[i].phone
+ landlord[i].fax
+ landlord[i].email
+ landlord[i].complete = True
 ---
 table: tenant.table
 rows: tenant
@@ -230,6 +325,7 @@ field: beginning
 buttons:
   - "I'm ready to continue": True
   - "Exit": False
+section: intro
 ---
 ##
 ## Check to see if the RTA applies to the user
@@ -253,6 +349,7 @@ field: rta_applies
 buttons:
   - "I'm ready to continue": True
   - "Exit": False
+section: rta
 ---
 ##
 ## Asks the user which remedy they are seeking
@@ -265,14 +362,15 @@ fields:
   - "Select all that apply": remedy
     datatype: checkboxes
     choices:
-      - I need to end my rental: termination
+      - I need to end my rental: terminating
       - I want to pay less or no rent because my rental is not liveable: abatement
       - The landlord broke our agreement and cost me money: damages
       - I had to do something my landlord was supposed to do & I want to be repaid: compensation
       - I want to get my security deposit back: deposit
+section: problem
 ---
 code: |
-  if remedy == "termination":
+  if remedy == "terminating":
     terminated_yes = False
 ---
 code: |
@@ -294,11 +392,12 @@ question: |
   % if i ==0:
     What is your name?
   % else:
-    Give the name of the ${ordinal(i)} tenant.
+    Tell us about the ${ordinal(i)} tenant.
   % endif
 fields:
   - First Name: tenant[i].name.first 
   - Last Name: tenant[i].name.last
+section: yourname
 ---
 question: |
   What is your current contact information?
@@ -317,15 +416,16 @@ fields:
   - Province: tenant[i].province
     default: "AB"
   - Postal Code: tenant[i].zip
+section: yourinfo
 ---
 question: | 
-  Were there any other people living at the rental address?  
+  Are there any other people living at the rental address?  
    ${tenant.table}
     ${tenant.add_action() }
-
 subquestion: |
   All done?
 noyes: tenant.there_is_another
+section: othertenants
 ---
 question: |
   % if i==0:  
@@ -338,6 +438,7 @@ question: |
 fields:
   - First Name: landlord[i].name.first 
   - Last Name: landlord[i].name.last
+section: yourlandlord
 ---
 question: |
   Please provide the contact information for your landlord.
@@ -372,9 +473,10 @@ fields:
   - Street Address: rental_address
     default: ${tenant[0].address}
   - City: rental_city
-    default: ${tenant[0].city}
+    default: ${tenant[0].province}
   - Postal Code: rental_zip
     default: ${tenant[0].zip}
+section: rentaladdress
 ---
 question: |
  Have you made an application with the Provincial Court or Court of Queen’s Bench on this matter?
@@ -384,6 +486,7 @@ buttons:
   - No, I have not.: did_not_make_application
 help: |
     Have you already filed papers at the courthouse?
+section: courtapps
 ---
 question: |
   Have you been served with a Provincial or Court of Queen’s Bench application on this matter?   
@@ -393,6 +496,7 @@ buttons:
   - No, I have not.: did_not_serve_application
 help: |
    Have you been given papers from someone else that talk about this rental issue?
+section: papersserved
 ---
 question: |
   Have you received paperwork from the RTDRS about this rental?
@@ -402,6 +506,7 @@ buttons:
   - No, I have not.: not_served_rtdrs
 help: |
   Have you filled out this kind of paperwork before for this same rental property?
+section: pastrtdrs
 ---
 mandatory: |
   served_rtdrs == "have_served_rtdrs"
@@ -420,41 +525,54 @@ code: |
 ##
 ---
 question: |
-  What sort of place are you renting? / did you rent?
+  The space you rent is a(n):
+#or rented
 fields: 
   - Type of Premises: rental_premises_type
+    datatype: checkboxes
     choices:
       - House: house
-      - Main floor of a house: main_floor
+        help: |
+          You rent the entire house
+      - Main floor: main_floor
+        help: |
+          You rent the upper or main floor of a house. The basement might be rented to someone else.
       - Basement suite: basement
+        help: |
+          You rent the whole basement or a basement suite. The living space might have a separate door and it might have a living room, a kitchen and a bathroom.
       - Room: room
+        help: |
+          You rent a room (or rooms) in a house. The kitchen, living room, or bathroom might be shared with other renters.
       - Apartment: apartment
       - Townhouse: townhouse
       - Other: other
-  - Other type of premises: rental_premises_type
-    show if:
-      variable: rental_premises_type
-      is: other
+    none of the above: False
+  - Describe Other: other_premises_type
+    js show if:
+      val("rental_premises_type['other']")
+section: rentaltype
 ---
 question: |
   How much did you pay as a security deposit for this rental?
 subquestion: |
-  If you didn't pay any security deposit, enter 0.
+  It is often called a damage deposit. If you didn't pay any deposit, enter 0.
 fields:
-  - Security deposit: security_deposit
+  - Deposit: security_deposit
     datatype: currency
     min: 0
 help: |
-  A security deposit is an amount of money that you gave the landlord when you moved in. 
-  This is on top of the rent that you pay. 
-  The landlord has to give this money back to you when you move out as long as you leave the rental in good condition.
+  A security deposit is the money you give the landlord when you move in. 
+  The deposit is not rent. It can be used for damage or repairs to the rental.
+  The landlord must return your deposit when you move out. They may use all or part of the deposit for their costs if the RTA allows it.
+section: deposit
 ---
 question: |
-  How much are you paying in rent every month?
+  How much is the rent each month?
 fields:
   - Rent: rent
     datatype: currency
     min: 0
+section: monthlyrent
 ---
 code: |
   if security_deposit > rent:
@@ -463,11 +581,11 @@ code: |
     extra_deposit = 0
 ---
 question : |
-  The RTA states that your landlord cannot charge a security deposit more than your monthly rent.
+  By law, your landlord cannot hold a deposit more than the monthly rent.
 subquestion: | 
   %if extra_deposit > 0:
-  You have paid $ ${ extra_deposit } above what you should have paid.
-  We will add this amount to your total claim.
+  You have paid $ ${ extra_deposit } more than you should have.
+  The extra amount will be added to your total claim.
   %else:
   Your security deposit is within the allowable amount.
   %endif
@@ -475,36 +593,48 @@ event: extra_deposit_check
 continue: continue
 ---
 question: |
-  What type of lease do you have?
+  Is the your tenancy Fixed, Monthly, or Other?
+subquestion: |
+  The rental term is the length of time you agreed to rent the property.
 fields:
-  - Type of lease: tenancy_type
+  - "I rent": tenancy_type
     choices:
-      - Fixed term: fixed
-      - Month to month: monthly
-      - Other: other_term
-  - Other tenancy term: other_term
+      - on a fixed term: fixed
+      - from month to month: monthly
+    disable others: True
+  - note: |
+      If not fixed or monthly, please identify what other term you agreed to below:
+  - Other: other_term
     show if:
       variable: tenancy_type
       is: other_term
 help: |
-    Fixed term: You are renting for a set length of time, such as 6 months, or 1 year.
-    Month to month: You are renting only for one month at a time.
+    Fixed term: You rent for a set length of time, like 6 months, or 1 year.
+    Month to month: You rent for one month at a time, or the rental is open (without an end date).
+section: leasetype
 ---
 question: |
-  Do you have a Tenancy Agreement?
-subquestion: |
-  You'll need to attach the form for this inspection.
-yesno: tenancy_agreement
----
-question: |
-  When did you move in?
+  It is helpful if your Tenancy Agreement is in writing and you can provide a copy.
 fields:
-  - Date moved in: tenancy_start
+  - "Do you have a copy?": tenancy_agreement
+    datatype: yesnoradio
+  - "When did the tenancy start?": tenancy_start
     datatype: date
+    help: |
+      The day you moved in, got keys, or the date you agreed to start paying rent.
+    js show if: |
+      val('tenancy_agreement') == false
+  - "Marked as 'ITEM: '": exhibit
+    help: |
+      You need to label each document you attach as evidence. The documents must be labeled "ITEM A", "ITEM B", "ITEM C", etc on this form *and* the document itself.
+    js show if: |
+      val('tenancy_agreement') == true
+section: agreement
 ---
 question: |
   Are you still living in this rental?
 yesno: residing
+section: residentstatus
 ---
 question: |
   When did you move out?
@@ -515,8 +645,9 @@ fields:
 question: |
   Are there previous Orders or Judgments regarding this tenancy?
 subquestion: |
-  You'll need to attach the form for this inspection.
+  You'll need to attach these documents, if you have them.
 yesno: previous_order
+section: ordersjudgments
 ---
 ## SECTION B
 ## TERMINATION OF TENANCY 
@@ -526,6 +657,7 @@ yesno: previous_order
 question: |
   Are you planning on moving out?
 yesno: termination
+section: movingout
 ---
 question: |
   On what date would you like to move out?
@@ -541,6 +673,7 @@ fields:
 question: |
   Did you tell your landlord in writing that you are planning on moving out?
 yesno: termination_served
+section: landlordknows
 ---
 ## SECTION C
 ## Abatement section
@@ -557,6 +690,7 @@ fields:
 help: |
   You may ask to not pay rent, for example, if you can't live in the rental due to a fire, flood damage, or bedbugs.
   If you are only able to use part of the space, you can ask for reduced rent. 
+section: notlive
 ---
 question: |
   How much money should be taken off of your rent?
@@ -569,6 +703,7 @@ fields:
 help: |
   This is the total amount that you want your rent to be reduced by.
   Relevant information to attach may include receipts for hotel rooms or contractors, records of the dates and types of damage, or photos. 
+section: abatementamount
 ---
 ## SECTION D
 ## Damages section
@@ -580,6 +715,7 @@ question: |
 fields:
   - Explain here: damages_text
     datatype: area
+section: landlordharm
 ---
 question: |
   How much money did the landlord cost you?
@@ -587,6 +723,7 @@ fields:
   - Value: damages_claim
     datatype: currency
     min: 0
+section: damagesamount
 ---
 ## SECTION E
 ## Compensation section
@@ -600,6 +737,7 @@ fields:
     datatype: area
 help: |
   This includes things such as repairs to the property, buying and/or installing new appliances, etc.
+section: fixthings
 ---
 question: |
   How much did you spend on doing things that the landlord should have done?
@@ -607,6 +745,7 @@ fields:
   - Value: compensation_claim
     datatype: currency
     min: 0
+section: compensationamount
 ---
 ## SECTION F
 ## Security Deposit
@@ -622,6 +761,7 @@ choices:
   - They have paid back all of the deposit: paid_back_all
   - They have paid back only some of the deposit: paid_back_some
   - They have not paid back any of the deposit: paid_back_none
+section: securityclaim
 ---
 question: |
   How much of the security deposit did they pay back?
@@ -644,6 +784,7 @@ yesno: move_in
 help: |
   A move-in inspection is a checklist that you and your landlord may have gone through when you moved in.
   You would have walked around the property and pointed out anything that was wrong with the place so that your landlord couldn't blame you for it later.
+section: movein
 ---
 question: |
   Was there a move-out inspection done?
@@ -653,12 +794,14 @@ yesno: move_out
 help: |
   A move-out inspection is a checklist that you and your landlord may have gone through when you moved out.
   You would have walked around the property and pointed out anything that had been damaged during the time that you lived there.
+section: moveout
 ---
 question: |
   Did the landlord provide you with a Statement of Account for your security deposit?
 subquestion: |
   You'll need to attach this statement, if you have it. 
 yesno: statement
+section: accountstatement
 ---
 code: |
   if paid_back == "paid_back_some":
@@ -673,6 +816,7 @@ question: |
 fields:
   - Explain here: recovery_text
     datatype: area
+section: returndeposit
 ---
 question: |
   The landlord owes you $ ${ recovery_claim } back for the security deposit.  
@@ -688,12 +832,14 @@ yesno: sd_owed_correct
 question: |
   Should the landlord be required to pay the $75 fee to file this form?
 yesno: file_fee
+section: filefee
 ---
 question: |
   Have you spent any other money to file this form that you think the landlord should be required to pay?
 yesno: other_costs
 help: |
   Costs to file this form could include things like printing costs, photocopying, and any costs you have paid for speaking with a lawyer.
+section: otherfile
 ---
 question: |
   How much have you spent to file this form that you think the landlord should pay?
@@ -711,7 +857,7 @@ help: |
   Costs to file this form could include things like printing costs, photocopying, and any costs you have paid for speaking with a lawyer.
 ---
 code: |
-  if remedy['termination'] == False:
+  if remedy['terminating'] == False:
     termination = False
     termination_date = " "
     termination_date_hold=termination_date
@@ -774,6 +920,7 @@ yesno: total_claim_correct
 question: |
   Will you be calling any witnesses to give evidence?
 yesno: witness.there_are_any
+section: witnesses
 ---
 question: |
   What is the name of your ${ ordinal(i) } witness?
@@ -803,7 +950,6 @@ yesno: witness.there_is_another
 code: |
   if total_claim > 50000:
     excess_claim = total_claim - 50000
-    total_claim = 50000
   else:
     excess_claim = 0
 ---
@@ -834,6 +980,7 @@ subquestion: |
   and that your total claim amount is $ ${ total_claim }. 
   Today's date is ${ today() }.
 signature: signature
+section: pleasesign
 ---
 mandatory: true
 question: |
@@ -849,7 +996,7 @@ attachments:
     filename: RTDRS_Application
     pdf template file: rtdrs-form2.pdf
     fields: 
-      "termination_flag": ${ remedy['termination'] }  
+      "termination_flag": ${ remedy['terminating'] }  
       "abatement_flag": ${ remedy['abatement'] }
       "damages_flag": ${ remedy['damages'] }
       "compensation_flag": ${ remedy['compensation'] }
@@ -910,5 +1057,6 @@ attachments:
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
       "signature": ${ signature }
+section: conclusion
 ---
 
