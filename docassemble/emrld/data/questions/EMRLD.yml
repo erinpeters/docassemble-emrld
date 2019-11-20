@@ -59,10 +59,14 @@ sections:
 	  - problem: What is the problem?
   - about: About you
     subsections:
-	  - yourname: Name
-    - yourinfo: Contact info
-	  - othertenants: Other tenants
+	    - yourname: Name
+      - yourinfo: Contact info
+	    - othertenants: Other tenants
   - yourlandlord: About your landlord
+    subsections:
+      - landlordname: Landlord name
+      - landlordinfo: Landlord contact info
+      - otherlandlords: Other landlords
   - yourrental: About your rental
     subsections:
       - rentaladdress: Address
@@ -119,6 +123,172 @@ initial: True
 code: |
   if returning_user(minutes=0.5):
     welcome_back
+---
+event: intro
+code: |
+  force_ask('beginning')
+---
+event: rta
+code: |
+  force_ask('rta_applies')
+---
+event: problem
+code: |
+  force_ask('remedy')
+---
+event: yourname
+section: yourname
+question: |
+  Would you like to change your information?
+review:
+  - Change: tenant[0].name.first
+    button: |
+      First Name:   ${ tenant[0].name.first }
+  - Change: tenant[0].name.last
+    button: |
+      Last Name:   ${ tenant[0].name.last }
+---
+event: yourinfo
+section: yourinfo
+question: |
+  Would you like to change your information?
+review:
+  - Change: tenant[0].phone
+    button: |
+      Phone:   ${ tenant[0].phone }
+  - Change: tenant[0].email
+    button: |
+      Email:   ${ tenant[0].email }
+  - Change: tenant[0].fax
+    button: |
+      Fax:   ${ tenant[0].fax }
+  - Change: tenant[0].unit
+    button: |
+      Unit #:   ${ tenant[0].unit }
+  - Change: tenant[0].address
+    button: |
+      Address:   ${ tenant[0].address }
+  - Change: tenant[0].city
+    button: |
+      City:   ${ tenant[0].city }
+  - Change: tenant[0].province
+    button: |
+      Province:   ${ tenant[0].province }
+  - Change: tenant[0].zip
+    button: |
+      Postal Code:   ${ tenant[0].zip }
+---
+event: othertenants
+code: |
+  force_ask('tenant.there_is_another')
+---
+event: landlordname
+section: landlordname
+question: |
+  Would you like to change your landlord's information?
+review:
+  - Change: landlord[0].name.first
+    button: |
+      First Name:   ${ landlord[0].name.first }
+  - Change: landlord[0].name.last
+    button: |
+      Last Name:   ${ landlord[0].name.last }
+---
+event: landlordinfo
+section: landlordinfo
+question: |
+  Would you like to change your landlord's information?
+review:
+  - Change: landlord[0].phone
+    button: |
+      Phone:   ${ landlord[0].phone }
+  - Change: landlord[0].email
+    button: |
+      Email:   ${ landlord[0].email }
+  - Change: landlord[0].fax
+    button: |
+      Fax:   ${ landlord[0].fax }
+  - Change: landlord[0].unit
+    button: |
+      Unit #:   ${ landlord[0].unit }
+  - Change: landlord[0].address
+    button: |
+      Address:   ${ landlord[0].address }
+  - Change: landlord[0].city
+    button: |
+      City:   ${ landlord[0].city }
+  - Change: landlord[0].province
+    button: |
+      Province:   ${ landlord[0].province }
+  - Change: landlord[0].zip
+    button: |
+      Postal Code:   ${ landlord[0].zip }
+---
+event: otherlandlords
+code: |
+  force_ask('landlord.there_is_another')
+---
+event: rentaladdress
+section: rentaladdress
+question: |
+  Would you like to change your rental address?
+review:
+  - Change: rental_address
+    button: |
+      Address:   ${ rental_address }
+  - Change: rental_city
+    button: |
+      City:   ${ rental_city }
+  - Change: rental_province
+    button: |
+      Province:   ${ rental_province }
+  - Change: rental_zip
+    button: |
+      Postal Code:   ${ rental_zip }
+---
+event: courtapps
+code: |
+  force_ask('made_court_application')
+---
+event: papersserved
+code: |
+  force_ask('served_court_application')
+---
+event: pastrtdrs
+code: |
+  force_ask('served_rtdrs')
+---
+event: rentaltype
+code: |
+  force_ask('rental_premises_type')
+---
+event: deposit
+code: |
+  force_ask('security_deposit')
+---
+event: monthlyrent
+code: |
+  force_ask('rent')
+---
+event: leasetype
+code: |
+  force_ask('tenancy_type')
+---
+event: agreement
+code: |
+  force_ask('tenancy_agreement')
+---
+event: residentstatus
+code: |
+  force_ask('residing')
+---
+event: ordersjudgments
+code: |
+  force_ask('previous_order')
+---
+event: movingout
+code: |
+  force_ask('termination')
 ---
 event: welcome_back
 question: |
@@ -415,7 +585,7 @@ question: |
 fields:
   - First Name: landlord[i].name.first 
   - Last Name: landlord[i].name.last
-section: yourlandlord
+section: landlordname
 ---
 question: |
   Please provide the contact information for your landlord.
@@ -434,6 +604,7 @@ fields:
   - Province: landlord[i].province
     default: "AB"
   - Postal Code: landlord[i].zip
+section: landlordinfo
 ---
 question: | 
   If there is more than one landlord add them here. 
@@ -443,6 +614,7 @@ question: |
 subquestion: |
   All done?
 noyes: landlord.there_is_another
+section: otherlandlords
 ---
 question: |
   What is the address of your rental?
