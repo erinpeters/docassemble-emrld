@@ -1238,7 +1238,7 @@ attachments:
       "damages_flag": ${ remedy['damages'] }
       "compensation_flag": ${ remedy['compensation'] }
       "deposit_flag": ${ remedy['deposit'] }
-      "tenant.name": ${ tenant[0].name } 
+      "tenant.name": ${ tenant } 
       "tenant.address": ${ tenant[0].address }
       "tenant.city": ${ tenant[0].city }
       "tenant.province": ${ tenant[0].province }
@@ -1246,7 +1246,7 @@ attachments:
       "tenant.fax": ${ tenant[0].fax }
       "tenant.email": ${ tenant[0].email }
       "tenant.phone": ${ tenant[0].phone }
-      "landlord.name": ${ landlord[0].name }
+      "landlord.name": ${ landlord }
       "landlord.address": ${ landlord[0].address }
       "landlord.province": ${ landlord[0].province }
       "landlord.city": ${ landlord[0].city }
@@ -1293,6 +1293,8 @@ attachments:
       "costs_text": ${ costs_text }
       "costs_claim": ${ costs_claim }
       "total_claim": ${ total_claim }
+      "witness.name": ${ witness }
+      "today_date": ${ today() }
       "signature": ${ signature }
 section: conclusion
 ---
