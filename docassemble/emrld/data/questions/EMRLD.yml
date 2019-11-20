@@ -710,7 +710,7 @@ fields:
   - Street Address: rental_address
     default: ${tenant[0].address}
   - City: rental_city
-    default: ${tenant[0].province}
+    default: ${tenant[0].city}
   - Postal Code: rental_zip
     default: ${tenant[0].zip}
 section: rentaladdress
