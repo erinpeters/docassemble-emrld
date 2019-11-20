@@ -489,6 +489,7 @@ code:  |
     costs_claim
     costs_text
   total_claim_correct
+  claim_amount_ok
   # WITNESSES
   witness.gather()
   witnesses_confirmed
@@ -592,7 +593,7 @@ section: rta
 ##
 ---
 question: |
-  What issue are you are currently having with your rental?
+  What issue(s) are you having?
 fields: 
   - "Select all that apply": remedy
     datatype: checkboxes
@@ -654,7 +655,12 @@ fields:
 section: yourinfo
 ---
 question: | 
-  Are there any other people living at the rental address?  
+  %if terminated_yes == True:
+  Were 
+  %elif terminated_yes == False:
+  Are 
+  %endif
+  there any other people living at the rental address?  
    ${tenant.table}
     ${tenant.add_action() }
 subquestion: |
@@ -705,7 +711,13 @@ noyes: landlord.there_is_another
 section: otherlandlords
 ---
 question: |
-  What is the address of your rental?
+  What 
+  %if terminated_yes == True:
+  was 
+  %elif terminated_yes == False:
+  is 
+  %endif
+  the address of your rental?
 fields:
   - Street Address: rental_address
     default: ${tenant[0].address}
@@ -762,7 +774,13 @@ code: |
 ##
 ---
 question: |
-  The space you rent is a(n):
+  The space you 
+  %if terminated_yes == True:
+  were renting 
+  %elif terminated_yes == False:
+  are renting 
+  %endif  
+  is a(n):
 #or rented
 fields: 
   - Type of Premises: rental_premises_type
@@ -804,7 +822,13 @@ help: |
 section: deposit
 ---
 question: |
-  How much is the rent each month?
+  How much 
+  %if terminated_yes == True:
+  was 
+  %elif terminated_yes == False:
+  is 
+  %endif  
+  the rent each month?
 fields:
   - Rent: rent
     datatype: currency
@@ -821,7 +845,7 @@ question : |
   By law, your landlord cannot hold a deposit more than the monthly rent.
 subquestion: | 
   %if extra_deposit > 0:
-  You have paid $ ${ extra_deposit } more than you should have.
+  You paid $ ${ extra_deposit } more than you should have.
   The extra amount will be added to your total claim.
   %else:
   Your security deposit is within the allowable amount.
@@ -830,7 +854,13 @@ event: extra_deposit_check
 continue: continue
 ---
 question: |
-  Is the your tenancy Fixed, Monthly, or Other?
+  What 
+  %if terminated_yes == True:
+  was 
+  %elif terminated_yes == False:
+  is  
+  %endif  
+  your tenancy term? (Fixed, Monthly, or Other)
 subquestion: |
   The rental term is the length of time you agreed to rent the property.
 fields:
@@ -986,7 +1016,6 @@ section: compensationamount
 ---
 ## SECTION F
 ## Security Deposit
-## This should probably be a variable section where it’s only shown if security_deposit has a value greater than zero AND if the tenancy has ended
 ---
 question: |
   Now we’re going to ask about the security deposit. 
@@ -1056,7 +1085,7 @@ fields:
 section: returndeposit
 ---
 question: |
-  The landlord owes you $ ${ recovery_claim } back for the security deposit.  
+  The landlord owes you $${ recovery_claim } back for the security deposit.  
 subquestion: |
   Is that correct?
 yesno: sd_owed_correct
