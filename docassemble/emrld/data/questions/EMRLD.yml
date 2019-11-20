@@ -239,9 +239,6 @@ review:
   - Change: rental_city
     button: |
       City:   ${ rental_city }
-  - Change: rental_province
-    button: |
-      Province:   ${ rental_province }
   - Change: rental_zip
     button: |
       Postal Code:   ${ rental_zip }
