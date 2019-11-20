@@ -391,21 +391,21 @@ buttons:
 code: |
   abatement_claim_hold=0
   termination_served_hold="  "
-  termination_text_hold="  "
+  termination_text_hold=" not applicable "
   termination_date_hold="  "
   statement_hold=False
   move_out_hold=False
   move_in_hold=False
   date_paid_hold="  "
-  compensation_text_hold="  "
-  damages_text_hold="  "
-  abatement_text_hold="  "
+  compensation_text_hold=" not applicable "
+  damages_text_hold=" not applicable "
+  abatement_text_hold=" not applicable "
   other_premises_type=" "
   other_term=" "
   abatement_attach=" "
   damages_attach=" "
   deposit_claim=" "
-  deposit_text=" "
+  deposit_text=" not applicable "
   paid_back_none=" "
   termination_attach=" "
   tenancy_start=" "
@@ -838,9 +838,6 @@ fields:
     choices:
       - on a fixed term: fixed
       - from month to month: monthly
-    disable others: True
-  - note: |
-      If not fixed or monthly, please identify what other term you agreed to below:
   - Other: other_term
     show if:
       variable: tenancy_type
