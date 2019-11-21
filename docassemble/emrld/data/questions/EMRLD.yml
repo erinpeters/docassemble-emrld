@@ -345,7 +345,7 @@ code: |
 ---
 event: witnesses
 code: |
-  force_ask('witness.there_are_any')
+  force_ask('witness.there_is_another')
 ---
 event: pleasesign
 code: |
