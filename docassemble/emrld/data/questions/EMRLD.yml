@@ -493,7 +493,6 @@ code:  |
   claim_amount_ok
   # WITNESSES
   witness.gather()
-  witnesses_confirmed
   signature
 ---
 code: |
@@ -1200,17 +1199,6 @@ fields:
   - First Name: witness[i].name.first
   - Last Name: witness[i].name.last
 ---
-question: |
-  % if witness.there_are_any:
-  Thank you, you've listed the following people as witnesses:
-  ${ witness }
-  % else:
-  You are not calling any witnesses.
-  % endif
-subquestion: Is this right?
-yesno: witnesses_confirmed
----
-if not witnesses_confirmed:
 question: | 
   Are there any other witnesses?  
    ${witness.table}
