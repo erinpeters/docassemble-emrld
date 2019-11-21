@@ -538,6 +538,14 @@ edit:
   - name.first
   - name.last
 ---
+table: witness.table
+rows: witness
+columns:
+  - Name: row_item
+edit:
+  - name.first
+  - name.last
+---
 ##
 ## Welcome screen
 ##
@@ -1192,10 +1200,6 @@ fields:
   - Last Name: witness[i].name.last
 ---
 question: |
-  Do you have any other witnesses?
-yesno: witness.there_is_another
----
-question: |
   % if witness.there_are_any:
   Thank you, you've listed the following people as witnesses:
   ${ witness }
@@ -1206,9 +1210,13 @@ subquestion: Is this right?
 yesno: witnesses_confirmed
 ---
 if not witnesses_confirmed:
-question: |
-  Do you have any other witnesses?
-yesno: witness.there_is_another
+question: | 
+  Are there any other witnesses?  
+   ${witness.table}
+    ${witness.add_action() }
+subquestion: |
+  All done?
+noyes: witness.there_is_another
 ---
 code: |
   if total_claim > 50000:
