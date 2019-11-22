@@ -50,7 +50,8 @@ modules:
 objects:
   - tenant: DAList.using(object_type=Individual, complete_attribute="complete",there_are_any=True)
   - landlord: DAList.using(object_type=Individual, complete_attribute="complete", there_are_any=True)
-  - witness: DAList.using(object_type=Individual)
+  - witness: DAList.using(object_type=Individual, there_are_any=True)
+  - evidence: DAList.using(object_type=Thing, there_are_any=True)
 ---
 sections:
   - intro: Introduction
@@ -402,6 +403,7 @@ code: |
   abatement_text_hold=" not applicable "
   other_premises_type=" "
   other_term=" "
+  vacated_date_hold=" "
   abatement_attach=" "
   damages_attach=" "
   deposit_claim=" "
@@ -409,7 +411,6 @@ code: |
   paid_back_none=" "
   termination_attach=" "
   tenancy_start=" "
-  vacated_date=" "
   exhibit_order=" "
 ---
 mandatory: true
@@ -418,7 +419,10 @@ code:  |
   beginning
   rta_applies
   terminated_yes
+  residing_flag=residing
   remedy
+  if remedy['terminating']:
+    termination=True
   tenant.gather()
   landlord.gather()
   rental_address
@@ -434,11 +438,11 @@ code:  |
   tenancy_type
   tenancy_agreement
   residing
-  if residing == False:
+  if residing=="not_residing":
     vacated_date
-    vacated_date_hold = vacated_date
+    vacated_date_hold=vacated_date
   else:
-    vacated_date_hold = "   "
+    vacated_date_hold=" "
   previous_order
   # SECTION B
   if remedy['terminating']:
@@ -493,6 +497,7 @@ code:  |
   claim_amount_ok
   # WITNESSES
   witness.gather()
+  evidence.gather()
   signature
 ---
 code: |
@@ -545,6 +550,13 @@ columns:
 edit:
   - name.first
   - name.last
+---
+table: evidence.table
+rows: evidence
+columns: 
+  - Name: row_item
+edit:
+  - name.text
 ---
 ##
 ## Welcome screen
@@ -792,27 +804,18 @@ question: |
 #or rented
 fields: 
   - Type of Premises: rental_premises_type
-    datatype: checkboxes
     choices:
       - House: house
-        help: |
-          You rent the entire house
-      - Main floor: main_floor
-        help: |
-          You rent the upper or main floor of a house. The basement might be rented to someone else.
+      - Main floor of a house: main_floor
       - Basement suite: basement
-        help: |
-          You rent the whole basement or a basement suite. The living space might have a separate door and it might have a living room, a kitchen and a bathroom.
       - Room: room
-        help: |
-          You rent a room (or rooms) in a house. The kitchen, living room, or bathroom might be shared with other renters.
       - Apartment: apartment
       - Townhouse: townhouse
       - Other: other
-    none of the above: False
-  - Describe Other: other_premises_type
-    js show if:
-      val("rental_premises_type['other']")
+  - Other type of premises: other_premises_type
+    show if:
+      variable: rental_premises_type
+      is: other
 section: rentaltype
 ---
 question: |
@@ -868,15 +871,16 @@ question: |
   % elif terminated_yes == False:
     is  
   % endif  
-  your tenancy term? (Fixed, Monthly, or Other)
+  your tenancy term?
 subquestion: |
   The rental term is the length of time you agreed to rent the property.
 fields:
-  - I rent: tenancy_type
+  - Type of lease: tenancy_type
     choices:
-      - on a fixed term: fixed
-      - from month to month: monthly
-  - Other: other_term
+      - Fixed term: fixed
+      - Month to month: monthly
+      - Other: other_term
+  - Other tenancy term: other_term_type
     show if:
       variable: tenancy_type
       is: other_term
@@ -886,39 +890,38 @@ help: |
 section: leasetype
 ---
 question: |
-  It is helpful if your Tenancy Agreement is in writing and you can provide a copy.
+  Do you have a tenancy agreement or a lease?
 fields:
-  - "Do you have a copy?": tenancy_agreement
-    datatype: yesnoradio
-  - "When did the tenancy start?": tenancy_start
-    datatype: date
-    help: |
-      The day you moved in, got keys, or the date you agreed to start paying rent.
-    js show if: |
-      val('tenancy_agreement') == false
-  - "Marked as 'ITEM: '": exhibit
-    help: |
-      You need to label each document you attach as evidence. The documents must be labeled "ITEM A", "ITEM B", "ITEM C", etc on this form *and* the document itself.
-    js show if: |
-      val('tenancy_agreement') == true
+  - Can you attach a copy of your Tenancy Agreement?: tenancy_agreement
+    choices:
+      - Yes, I'm attaching a copy: attached
+      - No, I never got an agreement or I have lost it: not_attached
+  - My tenancy started on: tenancy_start
+    show if:
+      variable: tenancy_agreement
+      is: not_attached
 section: agreement
 ---
 question: |
-  Are you still living in this rental?
-yesno: residing
-section: residentstatus
+  Have you moved out yet?
+fields:
+  - Are you still living there?: residing
+    choices:
+      - Yes, I'm still living there: still_residing
+      - No, I moved out: not_residing
 ---
 question: |
   When did you move out?
-fields:
-  - Date moved out: vacated_date
-    datatype: date
+fields: 
+  - Date: vacated_date
+section: residentstatus
 ---
 question: |
-  Are there previous Orders or Judgments regarding this tenancy?
-subquestion: |
-  You'll need to attach these documents, if you have them.
-yesno: previous_order
+  Have you ever gone to court or the RTDRS about this rental before?
+field: previous_order
+choices:
+  - Yes, I have: have_order
+  - No, I have not: no_order
 section: ordersjudgments
 ---
 ## SECTION B
@@ -1242,9 +1245,49 @@ subquestion: |
 signature: signature
 section: pleasesign
 ---
+question: |
+  Evidence is very important.  You must print out and add any evidence you plan to use to support your case.  It has to be labelled and added to the whole application package.  If you have emails, receipts, contracts, text messages that you will be printing and adding make a list of them now.
+yesno: continue
+---
+question: |
+  Try to describe each piece of evidence.  
+subquestion: |
+  Here are some good examples of descriptions:
+  
+  * receipt for stuff used to paint kitchen
+  * lease agreement
+  * pictures of damage to the carpet
+  * email from landlord on January 2
+  
+  Tell us about the ${ ordinal(i) } piece of evidence. 
+ 
+  
+fields:
+  - Evidence: evidence[i].name.text
+  - Item: evidence[i].name.text2
+    default: ${ alpha(i) }
+---
+question: | 
+  Here is the evidence you have listed so far. 
+   ${ evidence.table }
+     ${ evidence.add_action() }
+
+subquestion: |
+  All done? 
+noyes: evidence.there_is_another
+---
+question: Here are the instructions for filing this application. Download these and then go to the next screen.
+attachment:
+  - name: Memo
+    filename: instructions.md 
+    content file: instructions.md
+buttons:
+  - Continue to the next step: continue
+mandatory: True
+---
 mandatory: true
 question: |
-  Your document is ready.
+  Your RTDRS application is ready. 
 subquestion: |
   Thank you for using this interview. 
   Please note: you can apply to the RTDRS within 2 years from the date your claim is discovered.
@@ -1292,7 +1335,7 @@ attachments:
       "tenancy_type": ${ tenancy_type }
       "tenancy_agreement": ${ tenancy_agreement }
       "tenancy_start": ${ tenancy_start }
-      "residing": ${ residing }
+      "residing": ${ residing_flag }
       "vacated_date": ${ vacated_date_hold }
       "previous_order": ${ previous_order }
       "termination_date": ${ termination_date_hold }
@@ -1321,4 +1364,3 @@ attachments:
       "signature": ${ signature }
 section: conclusion
 ---
-
