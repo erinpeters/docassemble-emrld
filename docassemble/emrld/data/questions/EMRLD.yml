@@ -496,6 +496,7 @@ code:  |
   total_claim_correct
   claim_amount_ok
   # WITNESSES
+  witness.there_are_any
   witness.gather()
   evidence.gather()
   signature
@@ -915,6 +916,7 @@ question: |
   When did you move out?
 fields: 
   - Date: vacated_date
+    datatype: date
 section: residentstatus
 ---
 question: |
