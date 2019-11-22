@@ -897,6 +897,7 @@ fields:
       - Yes, I'm attaching a copy: attached
       - No, I never got an agreement or I have lost it: not_attached
   - My tenancy started on: tenancy_start
+    datatype: date
     show if:
       variable: tenancy_agreement
       is: not_attached
